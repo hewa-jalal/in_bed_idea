@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:inbedidea/pages/account_page.dart';
 import 'package:inbedidea/models/user_model.dart';
+import 'package:inbedidea/pages/note_widget.dart';
 import 'package:provider/provider.dart';
 
 class NotesPage extends StatelessWidget {
@@ -24,18 +24,20 @@ class NotesPage extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           final notes = snapshot.data.documents;
-          List<Text> notesWidgets = [];
+          List<NoteWidget> notesWidgets = [];
           for (var note in notes) {
             final noteText = note.data['text'];
             final noteId = note.data['userId'];
-            final noteWidget = Text(
-              '$noteText and id $noteId',
-              style: TextStyle(fontSize: 30),
-            );
+            final noteUserName = note.data['userName'];
+            final noteWidget = NoteWidget(noteText, noteId, noteUserName);
             notesWidgets.add(noteWidget);
           }
-          return Column(
-            children: notesWidgets,
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              NoteWidget noteWidget = notesWidgets[index];
+              return noteWidget;
+            },
+            itemCount: notesWidgets.length,
           );
         },
       ),

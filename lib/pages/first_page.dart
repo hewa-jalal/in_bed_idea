@@ -1,13 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
 import 'package:inbedidea/pages/notes_page.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:screen/screen.dart';
 import 'package:torch_compat/torch_compat.dart';
-
-import 'account_page.dart';
 
 class FirstPage extends StatefulWidget {
   @override
@@ -20,7 +17,8 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-  final userId = Provider.of<UserModel>(context, listen: false).userId;
+    final userId = Provider.of<UserModel>(context, listen: false).userId;
+    final userName = Provider.of<UserModel>(context, listen: false).userName;
     bool isFlashOn = false;
     Screen.setBrightness(0.0);
     Screen.keepOn(true);
@@ -53,24 +51,37 @@ class _FirstPageState extends State<FirstPage> {
       ),
       body: Container(
         margin: EdgeInsets.all(4),
-        child: TextField(
-          decoration: InputDecoration.collapsed(
-            hintText: 'Write down your great idea...',
+        child: Container(
+          height: double.infinity,
+          child: TextField(
+            decoration: InputDecoration.collapsed(
+              hintText: 'Write down your great idea...',
+            ),
+            onChanged: (value) => noteText = value.trim(),
           ),
-          onChanged: (value) {
-            noteText = value.trim();
-          },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
-        onPressed: () {
-          _firestore.collection('notes').add({
-            'text': noteText,
-            'userId': userId
-          });
-          FlutterFlexibleToast.showToast(message: 'Saved Note');
-        },
+      floatingActionButton: Builder(
+        builder: (context) => FloatingActionButton(
+          child: Icon(Icons.check),
+          onPressed: () {
+            if (noteText.isEmpty) {
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Please write something'),
+                ),
+              );
+            } else {
+              _firestore.collection('notes').add(
+                  {'text': noteText, 'userId': userId, 'userName': userName});
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Note Saved'),
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }

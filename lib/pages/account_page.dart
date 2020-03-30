@@ -42,7 +42,7 @@ class _AccountPageState extends State<AccountPage> {
     final user = _googleAuth.currentUser;
     if (_isLoggedIn) {
       print('is logged in');
-      Provider.of<UserModel>(context).saveValue(user.id);
+      Provider.of<UserModel>(context).saveValue(user.id, user.displayName);
     }
     return Scaffold(
       body: Center(

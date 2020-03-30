@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inbedidea/pages/login_page.dart';
 import 'package:inbedidea/pages/signup_page.dart';
+import 'package:inbedidea/pages/signup_page.dart';
 
 class WelcomePage extends StatefulWidget {
   WelcomePage({Key key, this.title}) : super(key: key);
