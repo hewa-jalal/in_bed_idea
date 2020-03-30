@@ -13,7 +13,6 @@ class MyTextField extends StatefulWidget {
 
 class _MyTextFieldState extends State<MyTextField> {
   bool showPassword = false;
-  var focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +29,24 @@ class _MyTextFieldState extends State<MyTextField> {
             height: 10,
           ),
           TextField(
-              onChanged: widget.onChange,
-              obscureText: !showPassword && widget.isPassword,
-              decoration: InputDecoration(
-                  suffixIcon: widget.isPassword
-                      ? IconButton(
-                          icon: Icon(
-                            Icons.remove_red_eye,
-                            color: showPassword ? Colors.blue : Colors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() => showPassword = !showPassword);
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
+            onChanged: widget.onChange,
+            obscureText: !showPassword && widget.isPassword,
+            decoration: InputDecoration(
+                suffixIcon: widget.isPassword
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.remove_red_eye,
+                          color: showPassword ? Colors.blue : Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() => showPassword = !showPassword);
+                        },
+                      )
+                    : null,
+                border: InputBorder.none,
+                fillColor: Color(0xfff3f3f4),
+                filled: true),
+          )
         ],
       ),
     );

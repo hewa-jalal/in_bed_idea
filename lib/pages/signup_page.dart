@@ -44,14 +44,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   height: 50,
                 ),
                 // =============== TextFields ========
-                MyTextField('Email', (value) {
-                  email = value.trim();
-                }),
+                MyTextField('Email', (value) => email = value.trim()),
                 MyTextField(
                   'Password',
-                    (value) {
-                    password = value.trim();
-                    },
+                  (value) => password = value.trim(),
                   isPassword: true,
                 ),
                 SizedBox(

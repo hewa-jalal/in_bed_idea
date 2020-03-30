@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:inbedidea/pages/account_page.dart';
 import 'package:inbedidea/pages/first_page.dart';
 import 'package:inbedidea/pages/login_page.dart';
 import 'package:inbedidea/models/user_model.dart';
@@ -20,7 +19,6 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
-        title: 'hello',
         debugShowCheckedModeBanner: false,
         home: SafeArea(child: WelcomePage()),
       ),

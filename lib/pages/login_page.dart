@@ -1,8 +1,12 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/models/user_model.dart';
+import 'package:inbedidea/pages/my_text_field.dart';
 import 'package:inbedidea/pages/signup_page.dart';
 import 'dart:math';
 
@@ -11,25 +15,43 @@ import 'package:provider/provider.dart';
 import 'first_page.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title}) : super(key: key);
-  final String title;
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   bool _isLoggedIn = false;
-
   GoogleSignIn _googleAuth = GoogleSignIn(scopes: ['email']);
+  final _auth = FirebaseAuth.instance;
+  String email;
+  String password;
 
-  _login() async {
+  _loginWithEmail(email, password) async {
+    try {
+      final user = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      if (user != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FirstPage()),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _loginWithGoogle() async {
     try {
       await _googleAuth.signIn();
       setState(() {
         _isLoggedIn = true;
+        Provider.of<UserModel>(context, listen: false).saveValue(
+            _googleAuth.currentUser.id, _googleAuth.currentUser.displayName);
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => FirstPage()));
+          context,
+          MaterialPageRoute(builder: (context) => FirstPage()),
+        );
       });
     } catch (e) {
       print('error $e');
@@ -43,11 +65,78 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      flex: 3,
+                      child: SizedBox(),
+                    ),
+                    _title(),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    MyTextField('Email', (value) => email = value.trim()),
+                    MyTextField(
+                      'Password',
+                      (value) => password = value.trim(),
+                      isPassword: true,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _submitButton(),
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      alignment: Alignment.centerRight,
+                      child: Text('Forgot Password ?',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w500)),
+                    ),
+                    _divider(),
+                    GoogleSignInButton(
+                      onPressed: () {
+                        _loginWithGoogle();
+                      },
+                      darkMode: true,
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(),
+                    ),
+                  ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: _createAccountLabel(),
+              ),
+              Positioned(top: 40, left: 0, child: _backButton()),
+              Positioned(
+                  top: -MediaQuery.of(context).size.height * .15,
+                  right: -MediaQuery.of(context).size.width * .4,
+                  child: BezierContainer())
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _backButton() {
     return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-      },
+      onTap: () => Navigator.pop(context),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
         child: Row(
@@ -109,7 +198,9 @@ class _LoginPageState extends State<LoginPage> {
       child: SizedBox(
         height: 30,
         child: FlatButton(
-          onPressed: () {},
+          onPressed: () {
+            _loginWithEmail(email, password);
+          },
           child: Text(
             'Login',
             style: TextStyle(fontSize: 20, color: Colors.white),
@@ -210,77 +301,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-       _entryField('Email'),
+        _entryField('Email'),
         _entryField("Password", isPassword: true),
       ],
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final user = _googleAuth.currentUser;
-    if (_isLoggedIn) {
-      print('is logged in');
-      Provider.of<UserModel>(context).saveValue(user.id, user.displayName);
-    }
-    return Scaffold(
-        body: SingleChildScrollView(
-            child: Container(
-      height: MediaQuery.of(context).size.height,
-      child: Stack(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 3,
-                  child: SizedBox(),
-                ),
-                _title(),
-                SizedBox(
-                  height: 50,
-                ),
-                _emailPasswordWidget(),
-                SizedBox(
-                  height: 20,
-                ),
-                _submitButton(),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  alignment: Alignment.centerRight,
-                  child: Text('Forgot Password ?',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                ),
-                _divider(),
-                GoogleSignInButton(
-                  onPressed: () {
-                    _login();
-                  },
-                  darkMode: true,
-                ),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(),
-                ),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: _createAccountLabel(),
-          ),
-          Positioned(top: 40, left: 0, child: _backButton()),
-          Positioned(
-              top: -MediaQuery.of(context).size.height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: BezierContainer())
-        ],
-      ),
-    )));
   }
 }
 

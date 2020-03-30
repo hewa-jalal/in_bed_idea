@@ -11,35 +11,36 @@ class NotesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userId = Provider.of<UserModel>(context).userId;
-    print('user Id in notes Page $userId');
-    return Scaffold(
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('notes')
-            .where('userId', isEqualTo: userId)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return Center(
-              child: CircularProgressIndicator(),
+    return SafeArea(
+      child: Scaffold(
+        body: StreamBuilder<QuerySnapshot>(
+          stream: _firestore
+              .collection('notes')
+              .where('userId', isEqualTo: userId)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            final List<DocumentSnapshot> notes = snapshot.data.documents;
+            List<NoteWidget> notesWidgets = [];
+            for (var note in notes) {
+              final noteText = note.data['text'];
+              final noteId = note.data['userId'];
+              final noteUserName = note.data['userName'];
+              final noteWidget = NoteWidget(noteText, noteId, noteUserName);
+              notesWidgets.add(noteWidget);
+            }
+            return ListView.builder(
+              itemBuilder: (context, index) {
+                NoteWidget noteWidget = notesWidgets[index];
+                return noteWidget;
+              },
+              itemCount: notesWidgets.length,
             );
-          final notes = snapshot.data.documents;
-          List<NoteWidget> notesWidgets = [];
-          for (var note in notes) {
-            final noteText = note.data['text'];
-            final noteId = note.data['userId'];
-            final noteUserName = note.data['userName'];
-            final noteWidget = NoteWidget(noteText, noteId, noteUserName);
-            notesWidgets.add(noteWidget);
-          }
-          return ListView.builder(
-            itemBuilder: (context, index) {
-              NoteWidget noteWidget = notesWidgets[index];
-              return noteWidget;
-            },
-            itemCount: notesWidgets.length,
-          );
-        },
+          },
+        ),
       ),
     );
   }

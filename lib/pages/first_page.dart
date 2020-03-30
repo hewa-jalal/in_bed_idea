@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/pages/notes_page.dart';
 import 'package:inbedidea/models/user_model.dart';
+import 'package:inbedidea/pages/welcome_page.dart';
 import 'package:provider/provider.dart';
 import 'package:screen/screen.dart';
 import 'package:torch_compat/torch_compat.dart';
@@ -14,6 +17,9 @@ class FirstPage extends StatefulWidget {
 class _FirstPageState extends State<FirstPage> {
   Firestore _firestore = Firestore.instance;
   String noteText;
+  GoogleSignIn _googleAuth = GoogleSignIn(scopes: ['email']);
+  final _auth = FirebaseAuth.instance;
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +52,10 @@ class _FirstPageState extends State<FirstPage> {
               context,
               MaterialPageRoute(builder: (context) => NotesPage()),
             ),
+          ),
+          FlatButton(
+            child: Text('Log out'),
+            onPressed: signOut,
           )
         ],
       ),
@@ -84,5 +94,14 @@ class _FirstPageState extends State<FirstPage> {
         ),
       ),
     );
+  }
+
+  void signOut() {
+    setState(() {
+      _googleAuth.signOut();
+      _auth.signOut();
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => WelcomePage()));
+    });
   }
 }
