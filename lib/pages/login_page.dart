@@ -1,9 +1,10 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/my_text_field.dart';
@@ -23,8 +24,9 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoggedIn = false;
   GoogleSignIn _googleAuth = GoogleSignIn(scopes: ['email']);
   final _auth = FirebaseAuth.instance;
-  String email;
-  String password;
+  String email = '';
+  String password = '';
+  String resetMessages = '';
 
   _loginWithEmail(email, password) async {
     try {
@@ -36,25 +38,47 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => FirstPage()),
         );
       }
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      print('loginnnnnn $error');
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    if (email.isEmpty)
+      resetMessages = 'Please Provide an Email';
+    else {
+      try {
+        await _auth.sendPasswordResetEmail(email: email);
+        resetMessages = 'sent an email to $email';
+      } on PlatformException catch (error) {
+        switch (error.code) {
+          case 'ERROR_INVALID_EMAIL':
+            setState(() => resetMessages = 'Please Enter A correct Email');
+            break;
+          case 'ERROR_USER_NOT_FOUND':
+            setState(() => resetMessages = 'Email doesn\'t exists');
+            break;
+        }
+      }
     }
   }
 
   _loginWithGoogle() async {
     try {
-      await _googleAuth.signIn();
-      setState(() {
-        _isLoggedIn = true;
-        Provider.of<UserModel>(context, listen: false).saveValue(
-            _googleAuth.currentUser.id, _googleAuth.currentUser.displayName);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FirstPage()),
-        );
-      });
+      final user = await _googleAuth.signIn();
+      if (user != null) {
+        setState(() {
+          _isLoggedIn = true;
+          Provider.of<UserModel>(context, listen: false).saveValue(
+              _googleAuth.currentUser.id, _googleAuth.currentUser.displayName);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FirstPage()),
+          );
+        });
+      }
     } catch (e) {
-      print('error $e');
+      print('error ${e.message}');
     }
   }
 
@@ -84,31 +108,42 @@ class _LoginPageState extends State<LoginPage> {
                       child: SizedBox(),
                     ),
                     _title(),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    MyTextField('Email', (value) => email = value.trim()),
+                    SizedBox(height: 50),
+                    MyTextField('Email', (value) {
+                      setState(() {
+                        email = value.trim();
+                        print(value.trim());
+                      });
+                    }),
                     MyTextField(
                       'Password',
                       (value) => password = value.trim(),
                       isPassword: true,
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    SizedBox(height: 20),
                     _submitButton(),
                     Container(
                       padding: EdgeInsets.symmetric(vertical: 10),
                       alignment: Alignment.centerRight,
-                      child: Text('Forgot Password ?',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500)),
+                      child: Builder(
+                        builder: (BuildContext context) {
+                          return FlatButton(
+                            onPressed: () async {
+                              await resetPassword(email);
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text(resetMessages),
+                              ));
+                            },
+                            child: Text('Forgot Password ?',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500)),
+                          );
+                        },
+                      ),
                     ),
                     _divider(),
                     GoogleSignInButton(
-                      onPressed: () {
-                        _loginWithGoogle();
-                      },
+                      onPressed: () => _loginWithGoogle(),
                       darkMode: true,
                     ),
                     Expanded(
@@ -163,9 +198,7 @@ class _LoginPageState extends State<LoginPage> {
             title,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
-          SizedBox(
-            height: 10,
-          ),
+          SizedBox(height: 10),
           TextField(
               obscureText: isPassword,
               decoration: InputDecoration(
@@ -215,9 +248,7 @@ class _LoginPageState extends State<LoginPage> {
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: <Widget>[
-          SizedBox(
-            width: 20,
-          ),
+          SizedBox(width: 20),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
@@ -230,14 +261,10 @@ class _LoginPageState extends State<LoginPage> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                thickness: 1,
-              ),
+              child: Divider(thickness: 1),
             ),
           ),
-          SizedBox(
-            width: 20,
-          ),
+          SizedBox(width: 20),
         ],
       ),
     );

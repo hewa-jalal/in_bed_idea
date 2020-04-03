@@ -7,21 +7,21 @@ import 'package:inbedidea/pages/welcome_page.dart';
 import 'package:provider/provider.dart';
 import 'package:screen/screen.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
+void main() => runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider<UserModel>(
           create: (_) => UserModel(),
         )
       ],
       child: MaterialApp(
+        home: SafeArea(child: MyApp()),
         debugShowCheckedModeBanner: false,
-        home: SafeArea(child: WelcomePage()),
       ),
-    );
+    ));
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WelcomePage();
   }
 }

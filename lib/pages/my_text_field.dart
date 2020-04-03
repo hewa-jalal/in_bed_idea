@@ -13,9 +13,16 @@ class MyTextField extends StatefulWidget {
 
 class _MyTextFieldState extends State<MyTextField> {
   bool showPassword = false;
+  final _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.isPassword) {
+      _controller.addListener(() {
+        if (_controller.text.isNotEmpty) setState(() {});
+        if (_controller.text.isEmpty) setState(() {});
+      });
+    }
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -25,10 +32,9 @@ class _MyTextFieldState extends State<MyTextField> {
             widget.title,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
-          SizedBox(
-            height: 10,
-          ),
+          SizedBox(height: 10),
           TextField(
+            controller: _controller ?? null,
             onChanged: widget.onChange,
             obscureText: !showPassword && widget.isPassword,
             decoration: InputDecoration(
@@ -42,7 +48,16 @@ class _MyTextFieldState extends State<MyTextField> {
                           setState(() => showPassword = !showPassword);
                         },
                       )
-                    : null,
+                    : IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          color: _controller.text.isEmpty
+                              ? Colors.grey
+                              : Colors.blue,
+                        ),
+                        onPressed: _controller.text.isEmpty
+                            ? null
+                            : () => setState(() => _controller.clear())),
                 border: InputBorder.none,
                 fillColor: Color(0xfff3f3f4),
                 filled: true),
@@ -50,5 +65,11 @@ class _MyTextFieldState extends State<MyTextField> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.clear();
   }
 }
