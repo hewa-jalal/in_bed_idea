@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/note_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class NotesPage extends StatelessWidget {
@@ -29,14 +30,15 @@ class NotesPage extends StatelessWidget {
               final noteText = note.data['text'];
               final noteId = note.data['userId'];
               final noteUserName = note.data['userName'];
-              final noteWidget = NoteWidget(noteText, noteId, noteUserName);
+              final date = DateFormat.yMd('en_US')
+                  .add_jm()
+                  .format(note.data['date'].toDate());
+              final noteWidget =
+                  NoteWidget(noteText, noteId, noteUserName, date);
               notesWidgets.add(noteWidget);
             }
             return ListView.builder(
-              itemBuilder: (context, index) {
-                NoteWidget noteWidget = notesWidgets[index];
-                return noteWidget;
-              },
+              itemBuilder: (context, index) => notesWidgets[index],
               itemCount: notesWidgets.length,
             );
           },

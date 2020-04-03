@@ -1,10 +1,9 @@
-import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/my_text_field.dart';
@@ -130,9 +129,9 @@ class _LoginPageState extends State<LoginPage> {
                           return FlatButton(
                             onPressed: () async {
                               await resetPassword(email);
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text(resetMessages),
-                              ));
+                              FlushbarHelper.createInformation(
+                                  message: resetMessages)
+                                ..show(context);
                             },
                             child: Text('Forgot Password ?',
                                 style: TextStyle(

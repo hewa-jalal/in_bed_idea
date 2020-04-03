@@ -4,8 +4,9 @@ class NoteWidget extends StatelessWidget {
   final String noteText;
   final String userId;
   final String userName;
+  final String date;
 
-  NoteWidget(this.noteText, this.userId, this.userName);
+  NoteWidget(this.noteText, this.userId, this.userName, this.date);
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,10 @@ class NoteWidget extends StatelessWidget {
                   ),
                   Text(
                     userName ?? 'null',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                  ),
+                  Text(
+                    date ?? 'null',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
                   )
                 ],

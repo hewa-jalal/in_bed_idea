@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/pages/notes_page.dart';
@@ -19,7 +20,6 @@ class _FirstPageState extends State<FirstPage> {
   String noteText;
   GoogleSignIn _googleAuth = GoogleSignIn(scopes: ['email']);
   final _auth = FirebaseAuth.instance;
-
 
   @override
   Widget build(BuildContext context) {
@@ -82,13 +82,14 @@ class _FirstPageState extends State<FirstPage> {
                 ),
               );
             } else {
-              _firestore.collection('notes').add(
-                  {'text': noteText, 'userId': userId, 'userName': userName});
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Note Saved'),
-                ),
-              );
+              _firestore.collection('notes').add({
+                'text': noteText,
+                'userId': userId,
+                'userName': userName,
+                'date': DateTime.now()
+              });
+              FlushbarHelper.createSuccess(message: 'Idea saved')
+                ..show(context);
             }
           },
         ),
@@ -100,8 +101,8 @@ class _FirstPageState extends State<FirstPage> {
     setState(() {
       _googleAuth.signOut();
       _auth.signOut();
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => WelcomePage()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => WelcomePage()));
     });
   }
 }
