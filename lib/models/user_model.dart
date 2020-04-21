@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-class UserModel extends ChangeNotifier {
+class UserModel with ChangeNotifier {
   String userId = 'manual default';
   String userName = 'manual defualt';
 

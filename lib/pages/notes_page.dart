@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:inbedidea/models/user_model.dart';
-import 'package:inbedidea/pages/note_widget.dart';
+import 'package:inbedidea/widgets/note_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +12,7 @@ class NotesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = Provider.of<UserModel>(context).userId;
+    final userId = Provider.of<FirebaseUser>(context).uid;
     return SafeArea(
       child: Scaffold(
         body: StreamBuilder<QuerySnapshot>(

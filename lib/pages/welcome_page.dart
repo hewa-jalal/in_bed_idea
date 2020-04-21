@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/pages/login_page.dart';
 import 'package:inbedidea/pages/signup_page.dart';
+
+import 'first_page.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -8,6 +12,28 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  final _googleAuth = GoogleSignIn();
+
+  @override
+  void initState() {
+    super.initState();
+    googleSignInSilent();
+  }
+
+  void googleSignInSilent() {
+    _googleAuth.signInSilently(suppressErrors: false).then((account) {
+      if (account != null) {
+        setState(() {
+          print('user signed in silently');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => FirstPage()),
+          );
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,5 +129,4 @@ class _WelcomePageState extends State<WelcomePage> {
       ),
     );
   }
-
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:inbedidea/pages/music_page.dart';
 import 'package:inbedidea/pages/notes_page.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
@@ -23,29 +24,37 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userId = Provider.of<UserModel>(context, listen: false).userId;
-    final userName = Provider.of<UserModel>(context, listen: false).userName;
-    bool isFlashOn = false;
-    Screen.setBrightness(0.0);
-    Screen.keepOn(true);
+    UserModel user = Provider.of<UserModel>(context, listen: false);
+    final authUser = Provider.of<FirebaseUser>(context, listen: false);
+    final userId = user.userId;
+    final userName = user.userName;
+    bool _isFlashOn = false;
+//    Screen.setBrightness(0.0);
+//    Screen.keepOn(true);
     return Scaffold(
       appBar: AppBar(
-        title: Text('In bed ideas'),
+        automaticallyImplyLeading: false,
         actions: <Widget>[
-          // <======= Lamp Button ======>
           IconButton(
-            icon: Icon(Icons.highlight),
+            icon: Icon(Icons.music_note),
             onPressed: () {
-              if (isFlashOn) {
-                TorchCompat.turnOff();
-                isFlashOn = false;
-              } else {
-                TorchCompat.turnOn();
-                isFlashOn = true;
-              }
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MusicPage()));
             },
           ),
           // <======= Note List Button ========>
+          IconButton(
+            icon: Icon(Icons.highlight),
+            onPressed: () {
+              if (_isFlashOn) {
+                TorchCompat.turnOff();
+                _isFlashOn = false;
+              } else {
+                TorchCompat.turnOn();
+                _isFlashOn = true;
+              }
+            },
+          ),
           IconButton(
             icon: Icon(Icons.list),
             onPressed: () => Navigator.push(
@@ -84,8 +93,8 @@ class _FirstPageState extends State<FirstPage> {
             } else {
               _firestore.collection('notes').add({
                 'text': noteText,
-                'userId': userId,
-                'userName': userName,
+                'userId': authUser.uid,
+                'userName': authUser.email,
                 'date': DateTime.now()
               });
               FlushbarHelper.createSuccess(message: 'Idea saved')
@@ -102,7 +111,7 @@ class _FirstPageState extends State<FirstPage> {
       _googleAuth.signOut();
       _auth.signOut();
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => WelcomePage()));
+          context, MaterialPageRoute(builder: (_) => WelcomePage()));
     });
   }
 }

@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:inbedidea/models/user_model.dart';
-import 'package:inbedidea/pages/my_text_field.dart';
+import 'package:inbedidea/widgets/my_text_field.dart';
 import 'package:provider/provider.dart';
 import 'first_page.dart';
 import 'login_page.dart';
@@ -26,53 +27,62 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
         body: SingleChildScrollView(
             child: Container(
-      height: MediaQuery.of(context).size.height,
-      child: Stack(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 3,
-                  child: SizedBox(),
-                ),
-                _title(),
-                SizedBox(
-                  height: 50,
-                ),
-                // =============== TextFields ========
-                MyTextField('Email', (value) => email = value.trim()),
-                MyTextField(
-                  'Password',
-                  (value) => password = value.trim(),
-                  isPassword: true,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _submitButton(),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(),
-                )
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: _loginAccountLabel(),
-          ),
-          Positioned(top: 40, left: 0, child: _backButton()),
-          Positioned(
-              top: -MediaQuery.of(context).size.height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: BezierContainer())
-        ],
-      ),
-    )));
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height,
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                          flex: 3,
+                          child: SizedBox(),
+                        ),
+                        _title(),
+                        SizedBox(
+                          height: 50,
+                        ),
+                        // =============== TextFields ========
+                        MyTextField('Email', (value) => email = value.trim()),
+                        MyTextField(
+                          'Password',
+                              (value) => password = value.trim(),
+                          isPassword: true,
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        _submitButton(),
+                        Expanded(
+                          flex: 2,
+                          child: SizedBox(),
+                        )
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: _loginAccountLabel(),
+                  ),
+                  Positioned(top: 40, left: 0, child: _backButton()),
+                  Positioned(
+                      top: -MediaQuery
+                          .of(context)
+                          .size
+                          .height * .15,
+                      right: -MediaQuery
+                          .of(context)
+                          .size
+                          .width * .4,
+                      child: BezierContainer())
+                ],
+              ),
+            )));
   }
 
   Widget _backButton() {
@@ -125,12 +135,16 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       final newUser = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      Provider.of<UserModel>(context, listen: false)
-          .saveValue(newUser.user.uid, newUser.user.email);
+//      Provider.of<UserModel>(context, listen: false)
+//          .saveValue(newUser.user.uid, newUser.user.email);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => FirstPage()));
     } catch (e) {
-      print('new User $e');
+      switch (e.code) {
+        case 'ERROR_WEAK_PASSWORD':
+          print('weak password');
+          break;
+      }
     }
   }
 
@@ -138,7 +152,10 @@ class _SignUpPageState extends State<SignUpPage> {
     return FlatButton(
       onPressed: signUp,
       child: Container(
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
         padding: EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(

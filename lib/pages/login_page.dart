@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/models/user_model.dart';
-import 'package:inbedidea/pages/my_text_field.dart';
+import 'package:inbedidea/widgets/my_text_field.dart';
 import 'package:inbedidea/pages/signup_page.dart';
 import 'dart:math';
 
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
       final user = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       if (user != null) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => FirstPage()),
         );
@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
           _isLoggedIn = true;
           Provider.of<UserModel>(context, listen: false).saveValue(
               _googleAuth.currentUser.id, _googleAuth.currentUser.displayName);
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => FirstPage()),
           );
@@ -187,28 +187,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          SizedBox(height: 10),
-          TextField(
-              obscureText: isPassword,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
-        ],
-      ),
-    );
-  }
-
   Widget _submitButton() {
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -321,15 +299,6 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
             ),
           ]),
-    );
-  }
-
-  Widget _emailPasswordWidget() {
-    return Column(
-      children: <Widget>[
-        _entryField('Email'),
-        _entryField("Password", isPassword: true),
-      ],
     );
   }
 }

@@ -1,25 +1,34 @@
+import 'package:audio_service/audio_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider<UserModel>(
-            create: (_) => UserModel(),
-          )
-        ],
-        child: MaterialApp(
-          home: SafeArea(child: MyApp()),
-          debugShowCheckedModeBanner: false,
-        ),
-      ),
-    );
+import 'pages/first_page.dart';
+
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   @override
   Widget build(BuildContext context) {
-    return WelcomePage();
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserModel>(
+          create: (_) => UserModel(),
+        ),
+        StreamProvider<FirebaseUser>.value(
+            value: FirebaseAuth.instance.onAuthStateChanged),
+      ],
+      child: MaterialApp(
+        home: AudioServiceWidget(child: WelcomePage(),),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
   }
 }
