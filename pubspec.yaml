@@ -37,6 +37,8 @@ dependencies:
   assets_audio_player: ^1.3.7+1
   flare_flutter: ^2.0.3
   video_player: ^0.10.9
+  device_preview: ^0.4.4
+  responsive_framework: ^0.0.4
 
 
 

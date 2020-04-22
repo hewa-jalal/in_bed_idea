@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:inbedidea/custom_controller.dart';
 import 'package:inbedidea/widgets/audio_card_wiget.dart';
 import 'package:video_player/video_player.dart';
 
@@ -7,22 +8,14 @@ import 'package:video_player/video_player.dart';
 //  AudioServiceBackground.run(() => MyBackgroundTask());
 //}
 
-VideoPlayerController _whiteNoiseController =
-    initializeControllers('white_noise.wav');
-VideoPlayerController _fireNoiseController = initializeControllers('fire_noise'
-    '.wav');
-
-VideoPlayerController _brownNoiseController =
-    initializeControllers('brown_noise.wav');
-VideoPlayerController _fanNoiseController =
-    initializeControllers('fan_noise.wav');
-
 class MusicPage extends StatefulWidget {
   @override
   _MusicPageState createState() => _MusicPageState();
 }
 
 class _MusicPageState extends State<MusicPage> {
+  CustomController controller = CustomController();
+
   @override
   void initState() {
     super.initState();
@@ -37,51 +30,35 @@ class _MusicPageState extends State<MusicPage> {
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
           child: Column(
             children: <Widget>[
-              AudioCard(
-                  onTap: () {
-                    playOne(_whiteNoiseController);
-                  },
-                  imagePath: 'white_noise.png'),
-              AudioCard(
+              Expanded(
+                child: AudioCard(
+                    onTap: () => controller.playOne(Player.white),
+                    imagePath: 'white_noise.png'),
+              ),
+              Expanded(
+                child: AudioCard(
                   imagePath: 'brown_noise.png',
-                  onTap: () {
-                    playOne(_brownNoiseController);
-                  }),
-              AudioCard(
+                  onTap: () => controller.playOne(Player.brown),
+                ),
+              ),
+              Expanded(
+                child: AudioCard(
                   imagePath: 'fire.png',
-                  onTap: () {
-                    playOne(_fireNoiseController);
-                  }),
-              AudioCard(
+                  onTap: () => controller.playOne(Player.fire),
+                ),
+              ),
+              Expanded(
+                child: AudioCard(
                   imagePath: 'fan.png',
-                  onTap: () {
-                    playOne(_fanNoiseController);
-
-//                    }
-                  })
+                  onTap: () => controller.playOne(Player.fan),
+                ),
+              )
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(onPressed: () {}),
       ),
     );
-  }
-
-  void playOne(VideoPlayerController controller) {
-    bool isPlaying = controller.value.isPlaying;
-    stopAll();
-    if (!isPlaying) {
-      controller.play();
-      isPlaying = false;
-    }
-    if (isPlaying) controller.pause();
-  }
-
-  void stopAll() {
-    _whiteNoiseController.pause();
-    _fireNoiseController.pause();
-    _brownNoiseController.pause();
-    _fanNoiseController.pause();
   }
 
 //    bool _isPlaying = audio.value.isPlaying;
@@ -92,13 +69,6 @@ class _MusicPageState extends State<MusicPage> {
 //    return false;
 //  }
 
-}
-
-VideoPlayerController initializeControllers(String assetPath) {
-  VideoPlayerController videoPlayerController =
-      VideoPlayerController.asset('assets/audio/$assetPath')..initialize();
-  videoPlayerController.setLooping(true);
-  return videoPlayerController;
 }
 
 //class MyBackgroundTask extends BackgroundAudioTask {
