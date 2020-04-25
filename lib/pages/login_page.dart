@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:inbedidea/components/my_text_field.dart';
 import 'package:inbedidea/models/user_model.dart';
-import 'package:inbedidea/widgets/my_text_field.dart';
 import 'package:inbedidea/pages/signup_page.dart';
 import 'dart:math';
 
@@ -204,16 +204,14 @@ class _LoginPageState extends State<LoginPage> {
           gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+              colors: [Colors.grey[900], Colors.blue[800]])),
       child: SizedBox(
         height: 30,
         child: FlatButton(
-          onPressed: () {
-            _loginWithEmail(email, password);
-          },
+          onPressed: () => _loginWithEmail(email, password),
           child: Text(
             'Login',
-            style: TextStyle(fontSize: 20, color: Colors.white),
+            style: TextStyle(fontSize: 24, color: Colors.white),
           ),
         ),
       ),
@@ -320,7 +318,7 @@ class BezierContainer extends StatelessWidget {
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xfffbb448), Color(0xffe46b10)])),
+                  colors: [Colors.grey[800], Colors.blue[800]])),
         ),
       ),
     ));

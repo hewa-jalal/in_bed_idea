@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:inbedidea/models/user_model.dart';
-import 'package:inbedidea/widgets/note_widget.dart';
+import 'package:inbedidea/components/note_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 

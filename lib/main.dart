@@ -28,8 +28,8 @@ class MyApp extends StatelessWidget {
             value: FirebaseAuth.instance.onAuthStateChanged),
       ],
       child: MaterialApp(
-        home: WelcomePage(),
         debugShowCheckedModeBanner: false,
+        home: WelcomePage(),
       ),
     );
   }

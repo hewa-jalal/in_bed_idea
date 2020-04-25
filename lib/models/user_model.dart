@@ -4,7 +4,7 @@ class UserModel with ChangeNotifier {
   String userId = 'manual default';
   String userName = 'manual defualt';
 
-  saveValue(userIdParam, userNameParam) {
+  saveValue(String userIdParam, String userNameParam) {
     userId = userIdParam;
     userName = userNameParam;
     notifyListeners();

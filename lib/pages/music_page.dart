@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:inbedidea/components/audio_card_wiget.dart';
 import 'package:inbedidea/custom_controller.dart';
-import 'package:inbedidea/widgets/audio_card_wiget.dart';
+import 'package:inbedidea/size_config.dart';
 import 'package:video_player/video_player.dart';
 
 //void myBackgroundTaskEntrypoint() {
@@ -30,33 +31,29 @@ class _MusicPageState extends State<MusicPage> {
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
           child: Column(
             children: <Widget>[
-              Expanded(
-                child: AudioCard(
-                    onTap: () => controller.playOne(Player.white),
-                    imagePath: 'white_noise.png'),
+              AudioCard(
+                  onTap: () => controller.playOne(Player.white),
+                  imagePath: 'white_noise.png'),
+              AudioCard(
+                imagePath: 'brown_noise.png',
+                onTap: () => controller.playOne(Player.brown),
               ),
-              Expanded(
-                child: AudioCard(
-                  imagePath: 'brown_noise.png',
-                  onTap: () => controller.playOne(Player.brown),
-                ),
+              AudioCard(
+                imagePath: 'fire.png',
+                onTap: () => controller.playOne(Player.fire),
               ),
-              Expanded(
-                child: AudioCard(
-                  imagePath: 'fire.png',
-                  onTap: () => controller.playOne(Player.fire),
-                ),
-              ),
-              Expanded(
-                child: AudioCard(
-                  imagePath: 'fan.png',
-                  onTap: () => controller.playOne(Player.fan),
-                ),
+              AudioCard(
+                imagePath: 'fan.png',
+                onTap: () => controller.playOne(Player.fan),
               )
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(onPressed: () {}),
+        floatingActionButton: FittedBox(
+          child: FloatingActionButton(
+            onPressed: () {},
+          ),
+        ),
       ),
     );
   }
