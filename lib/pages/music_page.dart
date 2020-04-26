@@ -58,14 +58,6 @@ class _MusicPageState extends State<MusicPage> {
     );
   }
 
-//    bool _isPlaying = audio.value.isPlaying;
-//    if (_isPlaying) {
-//      audio.pause();
-//      return true;
-//    }
-//    return false;
-//  }
-
 }
 
 //class MyBackgroundTask extends BackgroundAudioTask {

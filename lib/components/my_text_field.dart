@@ -32,7 +32,7 @@ class _MyTextFieldState extends State<MyTextField> {
             widget.title,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 4),
           TextField(
             controller: _controller ?? null,
             onChanged: widget.onChange,
@@ -57,9 +57,13 @@ class _MyTextFieldState extends State<MyTextField> {
                         ),
                         onPressed: _controller.text.isEmpty
                             ? null
-                            : () => setState(() => _controller.clear())),
+                            : () => setState(() => _controller.clear()),
+                      ),
                 border: InputBorder.none,
                 fillColor: Color(0xfff3f3f4),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 5.0),
+                ),
                 filled: true),
           )
         ],

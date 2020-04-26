@@ -41,6 +41,12 @@ dependencies:
   responsive_framework: ^0.0.4
   responsive_widgets: ^2.0.1
   getflutter: ^1.0.11
+  rxdart: ^0.24.0
+  argon_buttons_flutter: ^1.0.2
+  flutter_spinkit: ^4.1.2+1
+
+
+
 
 
 

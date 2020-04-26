@@ -24,13 +24,12 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    UserModel user = Provider.of<UserModel>(context, listen: false);
     final authUser = Provider.of<FirebaseUser>(context, listen: false);
-    final userId = user.userId;
-    final userName = user.userName;
+//    final userId = googleUser.id;
+//    final userName = googleUser.email;
     bool _isFlashOn = false;
 //    Screen.setBrightness(0.0);
-//    Screen.keepOn(true);
+    Screen.keepOn(true);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

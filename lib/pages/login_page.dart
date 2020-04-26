@@ -68,8 +68,8 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null) {
         setState(() {
           _isLoggedIn = true;
-          Provider.of<UserModel>(context, listen: false).saveValue(
-              _googleAuth.currentUser.id, _googleAuth.currentUser.displayName);
+//          Provider.of<UserModel>(context, listen: false).saveValue(
+//              _googleAuth.currentUser.id, _googleAuth.currentUser.displayName);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => FirstPage()),
@@ -141,10 +141,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     _divider(),
-                    GoogleSignInButton(
-                      onPressed: () => _loginWithGoogle(),
-                      darkMode: true,
-                    ),
                     Expanded(
                       flex: 2,
                       child: SizedBox(),

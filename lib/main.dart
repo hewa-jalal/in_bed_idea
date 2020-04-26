@@ -11,12 +11,10 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'pages/first_page.dart';
 
 void main() {
-  runApp(DevicePreview(builder: (context) => MyApp()));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
