@@ -14,9 +14,7 @@ import 'package:getflutter/components/button/gf_button_bar.dart';
 import 'package:getflutter/components/card/gf_card.dart';
 import 'package:getflutter/shape/gf_button_shape.dart';
 import 'package:getflutter/types/gf_button_type.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/components/my_text_field.dart';
-import 'package:inbedidea/services/CustomEmailAuth.dart';
 import 'package:inbedidea/pages/signup_page.dart';
 import 'package:inbedidea/services/UserAuth.dart';
 import 'package:inbedidea/size_config.dart';
@@ -29,11 +27,10 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-
   @override
   void initState() {
     super.initState();
-    userAuth.googleSignInSilent(context);
+//    userAuth.googleSignInSilent(context);
   }
 
   String animation = 'idle';
@@ -45,7 +42,7 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     FlareController controller;
-    SizeConfig().init(context);
+//    SizeConfig().init(context);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -62,11 +59,12 @@ class _WelcomePageState extends State<WelcomePage> {
             padding: EdgeInsets.symmetric(horizontal: 20),
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.grey, Colors.blue[200]])),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey, Colors.blue[200]]),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -99,7 +97,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     onPressed: () => userAuth.signInWithGoogle(context),
                     darkMode: true,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -150,8 +148,8 @@ class _WelcomePageState extends State<WelcomePage> {
                             'email and password')
                       ..show(context);
                   } else {
-                    if (btnState == ButtonState.Idle) startLoading();
-                    await customEmailAuth.signUp(email, password, context);
+                    if (btnState == ButtonState.Idle && mounted) startLoading();
+                    await userAuth.signInWithEmail(email, password, context);
                     stopLoading();
                   }
                 },
@@ -211,5 +209,10 @@ class _WelcomePageState extends State<WelcomePage> {
       size: 46,
       fullWidthButton: true,
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

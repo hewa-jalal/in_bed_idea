@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:inbedidea/components/my_text_field.dart';
+import 'package:inbedidea/services/UserAuth.dart';
 import 'first_page.dart';
 import 'login_page.dart';
 
@@ -18,7 +19,6 @@ class _SignUpPageState extends State<SignUpPage> {
   FirebaseUser loggedInUser;
   String email;
   String password;
-
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +139,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Widget _submitButton() {
     return FlatButton(
-      onPressed: signUp,
+      onPressed: () => userAuth.createAccountWithEmail(email, password, context),
       child: Container(
         width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.symmetric(vertical: 15),

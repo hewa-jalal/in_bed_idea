@@ -17,12 +17,9 @@ class _MyTextFieldState extends State<MyTextField> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isPassword) {
-      _controller.addListener(() {
-        if (_controller.text.isNotEmpty) setState(() {});
-        if (_controller.text.isEmpty) setState(() {});
-      });
-    }
+    _controller.addListener(() {
+      setState(() {});
+    });
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -34,7 +31,7 @@ class _MyTextFieldState extends State<MyTextField> {
           ),
           SizedBox(height: 4),
           TextField(
-            controller: _controller ?? null,
+            controller: _controller,
             onChanged: widget.onChange,
             obscureText: !showPassword && widget.isPassword,
             decoration: InputDecoration(
@@ -55,10 +52,7 @@ class _MyTextFieldState extends State<MyTextField> {
                               ? Colors.grey
                               : Colors.blue,
                         ),
-                        onPressed: _controller.text.isEmpty
-                            ? null
-                            : () => setState(() => _controller.clear()),
-                      ),
+                        onPressed: () => _controller.clear()),
                 border: InputBorder.none,
                 fillColor: Color(0xfff3f3f4),
                 focusedBorder: OutlineInputBorder(
@@ -74,6 +68,6 @@ class _MyTextFieldState extends State<MyTextField> {
   @override
   void dispose() {
     super.dispose();
-    _controller.clear();
+    _controller.dispose();
   }
 }

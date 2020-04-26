@@ -8,7 +8,9 @@ class UserAuth {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<void> signInWithGoogle(context) async {
-    final googleSignInAccount = await _googleSignIn.signIn();
+    final GoogleSignInAccount googleSignInAccount =
+        await _googleSignIn.signIn();
+
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
 
@@ -18,7 +20,8 @@ class UserAuth {
 
     final AuthResult authResult = await _auth.signInWithCredential(credential);
 
-    final user = authResult.user;
+    final FirebaseUser user = authResult.user;
+
     print('succefful sign in with google ${user.email}');
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => FirstPage()));
@@ -28,9 +31,10 @@ class UserAuth {
     await _googleSignIn.signOut();
     print('user signed out');
   }
+
   void googleSignInSilent(context) {
     _googleSignIn.signInSilently(suppressErrors: false).then(
-          (account) {
+      (account) {
         if (account != null) {
           Navigator.pushReplacement(
             context,
@@ -41,8 +45,36 @@ class UserAuth {
     );
   }
 
+  void createAccountWithEmail(
+      String email, String password, BuildContext context) async {
+    try {
+      final user = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      if (user != null) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => FirstPage()));
+        print(user.user.email);
+        print(user.user.uid);
+      }
+    } catch (e) {}
+  }
 
-
+  Future<void> signInWithEmail(
+      String email, String password, BuildContext context) async {
+    try {
+      final user = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      if (user != null)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => FirstPage()),
+        );
+      print('login =>' + user.user.email);
+      print(user.user.uid);
+    } catch (e) {
+      print('error $e');
+    }
+  }
 }
 
 final UserAuth userAuth = UserAuth();

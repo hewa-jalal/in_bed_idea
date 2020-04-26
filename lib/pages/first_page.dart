@@ -24,9 +24,8 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = Provider.of<FirebaseUser>(context, listen: false);
-//    final userId = googleUser.id;
-//    final userName = googleUser.email;
+    final authUser = Provider.of<FirebaseUser>(context);
+    print('first page => ${authUser.email}');
     bool _isFlashOn = false;
 //    Screen.setBrightness(0.0);
     Screen.keepOn(true);

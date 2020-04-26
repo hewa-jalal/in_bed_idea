@@ -13,8 +13,6 @@ class NotesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userId = Provider.of<FirebaseUser>(context).uid;
-//    final googleAccount =
-//        Provider.of<GoogleSignInAccount>(context, listen: false);
     return SafeArea(
       child: Scaffold(
         body: StreamBuilder<QuerySnapshot>(
@@ -27,6 +25,16 @@ class NotesPage extends StatelessWidget {
               return Center(
                 child: CircularProgressIndicator(),
               );
+            else if (snapshot.data.documents.isEmpty) {
+              return Center(
+                child: FittedBox(
+                  child: Text(
+                    'you don\'t have any notes',
+                    style: TextStyle(fontSize: 26),
+                  ),
+                ),
+              );
+            }
             final List<DocumentSnapshot> notes = snapshot.data.documents;
             List<NoteWidget> notesWidgets = [];
             for (var note in notes) {
