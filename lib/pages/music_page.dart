@@ -30,6 +30,7 @@ class _MusicPageState extends State<MusicPage> {
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               AudioCard(
                   onTap: () => controller.playOne(Player.white),
@@ -57,7 +58,6 @@ class _MusicPageState extends State<MusicPage> {
       ),
     );
   }
-
 }
 
 //class MyBackgroundTask extends BackgroundAudioTask {

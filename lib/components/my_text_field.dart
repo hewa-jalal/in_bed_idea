@@ -29,7 +29,7 @@ class _MyTextFieldState extends State<MyTextField> {
             widget.title,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
-          SizedBox(height: 4),
+          SizedBox(height: 2),
           TextField(
             controller: _controller,
             onChanged: widget.onChange,

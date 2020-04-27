@@ -10,17 +10,17 @@ class AudioCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    return InkWell(
-      onTap: onTap,
-      child: Card(
-        color: Colors.grey,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: 170,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child:
-                Image.asset('assets/images/$imagePath', fit: BoxFit.scaleDown),
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Card(
+          color: Colors.grey,
+          child: SizedBox(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child:
+                  Image.asset('assets/images/$imagePath', fit: BoxFit.scaleDown),
+            ),
           ),
         ),
       ),
