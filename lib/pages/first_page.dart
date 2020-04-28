@@ -7,6 +7,7 @@ import 'package:inbedidea/pages/music_page.dart';
 import 'package:inbedidea/pages/notes_page.dart';
 import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
+import 'package:inbedidea/services/UserAuth.dart';
 import 'package:provider/provider.dart';
 import 'package:screen/screen.dart';
 import 'package:torch_compat/torch_compat.dart';
@@ -25,7 +26,6 @@ class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
     final authUser = Provider.of<FirebaseUser>(context);
-    print('first page => ${authUser.email}');
     bool _isFlashOn = false;
 //    Screen.setBrightness(0.0);
     Screen.keepOn(true);
@@ -62,7 +62,11 @@ class _FirstPageState extends State<FirstPage> {
           ),
           FlatButton(
             child: Text('Log out'),
-            onPressed: signOut,
+            onPressed: () {
+              userAuth.signOut();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => WelcomePage()));
+            },
           )
         ],
       ),

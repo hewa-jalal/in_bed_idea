@@ -1,15 +1,16 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:getflutter/components/button/gf_button.dart';
 import 'package:getflutter/components/button/gf_button_bar.dart';
 import 'package:getflutter/components/card/gf_card.dart';
+import 'package:getflutter/getflutter.dart';
 import 'package:getflutter/shape/gf_button_shape.dart';
 import 'package:getflutter/types/gf_button_type.dart';
 import 'package:inbedidea/components/my_text_field.dart';
@@ -30,7 +31,7 @@ class _WelcomePageState extends State<WelcomePage> {
 //    userAuth.googleSignInSilent(context);
   }
 
-  String animation = 'idle';
+  String animation = 'no_pass_email';
   bool isLoginForm = false;
   bool _showGoogleSignIn = true;
   bool _isSignUp = false;
@@ -43,63 +44,39 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     FlareController controller;
-//    SizeConfig().init(context);
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (animation == 'success')
-            animation = 'fail';
-          else
-            animation = 'success';
-          print('tapped');
-        });
-      },
-      child: SafeArea(
-        child: Scaffold(
-          body: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.grey, Colors.blue[200]]),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      child: CircleAvatar(
-                        child: ClipOval(
-                          child: FlareActor(
-                            'assets/teddyyyy.flr',
-                            animation: animation,
-                          ),
-                        ),
-                        backgroundColor: Colors.white,
+    ScreenUtil.init(context);
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.blue,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding:
+                EdgeInsets.symmetric(horizontal: ScreenUtil().setWidth(60)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: CircleAvatar(
+                    child: ClipOval(
+                      child: FlareActor(
+                        'assets/teddyyyy.flr',
+                        animation: animation,
                       ),
                     ),
+                    backgroundColor: Colors.white,
                   ),
-                  SizedBox(height: customHeight),
-                  isLoginForm == true ? _formCard() : welcomeBox(),
-                  Visibility(
-                    visible: _showGoogleSignIn,
-                    child: GoogleSignInButton(
-                      onPressed: () => userAuth.signInWithGoogle(context),
-                      darkMode: true,
-                    ),
+                ),
+                SizedBox(height: customHeight),
+                isLoginForm == true ? _formCard() : welcomeBox(),
+                Visibility(
+                  visible: _showGoogleSignIn,
+                  child: GoogleSignInButton(
+                    onPressed: () => userAuth.signInWithGoogle(context),
+                    darkMode: true,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -128,7 +105,7 @@ class _WelcomePageState extends State<WelcomePage> {
             MyTextField('Email', (value) => email = value.trim()),
             MyTextField(
               'Password',
-                  (value) => password = value.trim(),
+              (value) => password = value.trim(),
               isPassword: true,
             ),
             Padding(
@@ -153,8 +130,7 @@ class _WelcomePageState extends State<WelcomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding:
-                  const EdgeInsets.only(bottom: 20, right: 16),
+                  padding: const EdgeInsets.only(bottom: 20, right: 16),
                   child: IconButton(
                     icon: Icon(
                       Icons.arrow_back,
@@ -164,7 +140,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     onPressed: backToWelcomeBox,
                   ),
                 ),
-                SizedBox(width: 40),
+                Spacer(),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: ArgonButton(
@@ -180,8 +156,18 @@ class _WelcomePageState extends State<WelcomePage> {
                       } else {
                         if (btnState == ButtonState.Idle && mounted)
                           startLoading();
-                        await userAuth.signInWithEmail(
-                            email, password, context);
+                        try {
+                          final user =
+                              await userAuth.signInWithEmail(email, password);
+                          if (user != null) {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FirstPage()));
+                          }
+                        } catch (e) {
+                          print('eeeeeee ${e.message}');
+                        }
                         stopLoading();
                       }
                     },
@@ -190,6 +176,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 60,
                   ),
                 ),
+                Spacer(flex: 2,)
               ],
             ),
           ],
@@ -220,18 +207,17 @@ class _WelcomePageState extends State<WelcomePage> {
         });
       },
       child: Container(
-        width: MediaQuery
-            .of(context)
-            .size
-            .width,
-        padding: EdgeInsets.symmetric(vertical: 13),
+        width: ScreenUtil.screenWidth,
+        padding: EdgeInsets.all(10),
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(5)),
             color: Colors.white),
         child: Text(
           'Login',
-          style: TextStyle(fontSize: 20, color: Colors.blue),
+          style: TextStyle(
+              fontSize: ScreenUtil().setSp(100, allowFontScalingSelf: true),
+              color: Colors.blue),
         ),
       ),
     );
@@ -239,23 +225,28 @@ class _WelcomePageState extends State<WelcomePage> {
 
   // register button
   Widget _registerButton() {
-    return GFButton(
-      onPressed: () {
-        setState(() {
-          isLoginForm = true;
-          _isSignUp = true;
-          _showGoogleSignIn = false;
-          smallerHeight();
-        });
-      },
-      text: 'Register now',
-      textStyle: TextStyle(fontSize: 24),
-      textColor: Colors.black,
-      shape: GFButtonShape.square,
-      type: GFButtonType.outline2x,
-      color: Colors.white,
-      size: 46,
-      fullWidthButton: true,
+    return SizedBox(
+      width: ScreenUtil.screenWidth,
+      height: 140.h,
+      child: GFButton(
+        onPressed: () {
+          setState(() {
+            isLoginForm = true;
+            _isSignUp = true;
+            _showGoogleSignIn = false;
+            smallerHeight();
+          });
+        },
+        text: 'Register now',
+        textStyle: TextStyle(
+            fontSize: ScreenUtil().setSp(100, allowFontScalingSelf: true),
+            color: Colors.white),
+        textColor: Colors.black,
+        shape: GFButtonShape.square,
+        type: GFButtonType.outline2x,
+        color: Colors.white,
+        fullWidthButton: true,
+      ),
     );
   }
 }
