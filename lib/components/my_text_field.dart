@@ -27,7 +27,10 @@ class _MyTextFieldState extends State<MyTextField> {
         children: <Widget>[
           Text(
             widget.title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
           ),
           SizedBox(height: 2),
           TextField(

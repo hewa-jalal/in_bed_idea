@@ -51,7 +51,8 @@ class UserAuth {
     );
   }
 
-  void createAccountWithEmail(
+  // ignore: missing_return
+  Future<String> createAccountWithEmail(
       String email, String password, BuildContext context) async {
     try {
       final user = await _auth.createUserWithEmailAndPassword(
@@ -59,25 +60,37 @@ class UserAuth {
       if (user != null) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => FirstPage()));
-        print(user.user.email);
-        print(user.user.uid);
+        return 'successfully signed up';
       }
-    } catch (e) {}
+    } on PlatformException catch (e) {
+      switch (e.code) {
+        case 'ERROR_WEAK_PASSWORD':
+          return 'Please provide a strong password';
+        case 'ERROR_INVALID_EMAIL':
+          return 'Please provide a correct email';
+        case 'ERROR_EMAIL_ALREADY_IN_USE':
+          return 'The email address is already in use, try to log in!';
+      }
+    }
   }
 
-  Future<AuthResult> signInWithEmail(String email, String password) async {
+  Future<String> signInWithEmail(
+      String email, String password, BuildContext context) async {
     try {
-      return await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => FirstPage()));
+      return 'successful sign in';
     } on PlatformException catch (e) {
       switch (e.code) {
         case 'ERROR_INVALID_EMAIL':
-          throw Exception('invalid email');
-          break;
+          return 'Please enter a valid email';
         case 'ERROR_WRONG_PASSWORD':
-          throw Exception('invalid password');
-          break;
+          return 'Please enter a correct password';
+        case 'ERROR_USER_NOT_FOUND':
+          return 'No user exists with this email';
         default:
+          return 'defualt case';
       }
     }
   }

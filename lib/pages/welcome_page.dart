@@ -107,6 +107,7 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _formCard() {
+    String message;
     return WillPopScope(
       child: GFCard(
         color: Colors.blueGrey,
@@ -120,7 +121,7 @@ class _WelcomePageState extends State<WelcomePage> {
               isPassword: true,
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: Visibility(
                 visible: !_isSignUp,
                 child: FlatButton(
@@ -129,7 +130,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 26,
                         color: Colors.white,
                         fontWeight: FontWeight.bold),
                   ),
@@ -171,19 +172,20 @@ class _WelcomePageState extends State<WelcomePage> {
                       } else {
                         if (btnState == ButtonState.Idle && mounted)
                           startLoading();
-                        try {
-                          final user =
-                              await userAuth.signInWithEmail(email, password);
-                          if (user != null) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => FirstPage()));
-                          }
-                        } catch (e) {
-                          print('eeeeeee ${e.message}');
-                        }
+                        if (_isSignUp)
+                          message = await userAuth.createAccountWithEmail(
+                              email, password, context);
+                        else
+                          message = await userAuth.signInWithEmail(
+                              email, password, context);
                         stopLoading();
+                        if (message == 'successful sign in' ||
+                            message == 'successfully signed up')
+                          FlushbarHelper.createSuccess(message: message)
+                            ..show(context);
+                        else
+                          FlushbarHelper.createError(message: message)
+                            ..show(context);
                       }
                     },
                     child: Text('Done'),
@@ -191,9 +193,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 60,
                   ),
                 ),
-                Spacer(
-                  flex: 2,
-                )
+                Spacer(flex: 2)
               ],
             ),
           ],
