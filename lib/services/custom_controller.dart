@@ -10,9 +10,11 @@ class CustomController {
   static final VideoPlayerController _whiteNoiseController =
       initializeControllers('white_noise.wav');
   static final VideoPlayerController _fireNoiseController =
-  initializeControllers('fire_noise.wav');
-  VideoPlayerController _brownNoiseController = initializeControllers('brown_noise.wav');
-  VideoPlayerController _fanNoiseController = initializeControllers('fan_noise.wav');
+      initializeControllers('fire_noise.wav');
+  VideoPlayerController _brownNoiseController =
+      initializeControllers('brown_noise.wav');
+  VideoPlayerController _fanNoiseController =
+      initializeControllers('fan_noise.wav');
 
   static VideoPlayerController initializeControllers(String assetPath) {
     VideoPlayerController videoPlayerController =

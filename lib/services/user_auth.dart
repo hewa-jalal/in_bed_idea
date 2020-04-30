@@ -2,9 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:inbedidea/pages/AuthException.dart';
 import 'package:inbedidea/pages/first_page.dart';
-import 'package:inbedidea/pages/welcome_page.dart';
 
 class UserAuth {
   final FirebaseAuth _auth = FirebaseAuth.instance;

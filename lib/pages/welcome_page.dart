@@ -4,6 +4,7 @@ import 'package:flare_flutter/flare_controller.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -14,7 +15,7 @@ import 'package:getflutter/getflutter.dart';
 import 'package:getflutter/shape/gf_button_shape.dart';
 import 'package:getflutter/types/gf_button_type.dart';
 import 'package:inbedidea/components/my_text_field.dart';
-import 'package:inbedidea/services/UserAuth.dart';
+import 'package:inbedidea/services/user_auth.dart';
 import 'package:inbedidea/size_config.dart';
 
 import 'first_page.dart';
@@ -47,36 +48,46 @@ class _WelcomePageState extends State<WelcomePage> {
     ScreenUtil.init(context);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.blue,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: ScreenUtil().setWidth(60)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: CircleAvatar(
-                    child: ClipOval(
-                      child: FlareActor(
-                        'assets/teddyyyy.flr',
-                        animation: animation,
+        body: Container(
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.grey, Colors.blue[200]]),
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: ScreenUtil().setWidth(60),
+                  vertical: ScreenUtil().setHeight(80)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: CircleAvatar(
+                      child: ClipOval(
+                        child: FlareActor(
+                          'assets/teddyyyy.flr',
+                          animation: animation,
+                        ),
                       ),
+                      backgroundColor: Colors.white,
                     ),
-                    backgroundColor: Colors.white,
                   ),
-                ),
-                SizedBox(height: customHeight),
-                isLoginForm == true ? _formCard() : welcomeBox(),
-                Visibility(
-                  visible: _showGoogleSignIn,
-                  child: GoogleSignInButton(
-                    onPressed: () => userAuth.signInWithGoogle(context),
-                    darkMode: true,
+                  SizedBox(height: customHeight),
+                  isLoginForm == true ? _formCard() : welcomeBox(),
+                  Visibility(
+                    visible: _showGoogleSignIn,
+                    child: GoogleSignInButton(
+                      onPressed: () => userAuth.signInWithGoogle(context),
+                      darkMode: true,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -109,15 +120,19 @@ class _WelcomePageState extends State<WelcomePage> {
               isPassword: true,
             ),
             Padding(
-              padding: const EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(8.0),
               child: Visibility(
                 visible: !_isSignUp,
-                child: Text(
-                  'Forgot password?',
-                  style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.red[800],
-                      fontWeight: FontWeight.bold),
+                child: FlatButton(
+                  onPressed: () {},
+                  color: Colors.blue[200],
+                  child: Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             )
@@ -176,7 +191,9 @@ class _WelcomePageState extends State<WelcomePage> {
                     height: 60,
                   ),
                 ),
-                Spacer(flex: 2,)
+                Spacer(
+                  flex: 2,
+                )
               ],
             ),
           ],

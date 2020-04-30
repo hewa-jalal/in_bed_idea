@@ -15,6 +15,7 @@ class NotesPage extends StatelessWidget {
     final userId = Provider.of<FirebaseUser>(context).uid;
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.blueGrey[800],
         body: StreamBuilder<QuerySnapshot>(
           stream: _firestore
               .collection('notes')

@@ -10,7 +10,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'pages/first_page.dart';
 
 void main() {
-  runApp(DevicePreview(builder: (context) => MyApp()));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
