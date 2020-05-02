@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -15,10 +16,8 @@ import 'package:getflutter/getflutter.dart';
 import 'package:getflutter/shape/gf_button_shape.dart';
 import 'package:getflutter/types/gf_button_type.dart';
 import 'package:inbedidea/components/my_text_field.dart';
+import 'package:inbedidea/main.dart';
 import 'package:inbedidea/services/user_auth.dart';
-import 'package:inbedidea/size_config.dart';
-
-import 'first_page.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -26,14 +25,17 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  UserAuth _userAuth;
+
   @override
   void initState() {
     super.initState();
-//    userAuth.googleSignInSilent(context);
+    _userAuth = getIt<UserAuth>();
+//    _userAuth.googleSignInSilent(context);
   }
 
-  String animation = 'no_pass_email';
-  bool isLoginForm = false;
+  String _animation = 'idle';
+  bool _isAuthForm = false;
   bool _showGoogleSignIn = true;
   bool _isSignUp = false;
   String email = '';
@@ -60,8 +62,9 @@ class _WelcomePageState extends State<WelcomePage> {
           child: SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: ScreenUtil().setWidth(60),
-                  vertical: ScreenUtil().setHeight(80)),
+                vertical: 80,
+                horizontal: 30,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -70,19 +73,19 @@ class _WelcomePageState extends State<WelcomePage> {
                     child: CircleAvatar(
                       child: ClipOval(
                         child: FlareActor(
-                          'assets/teddyyyy.flr',
-                          animation: animation,
+                          'assets/teddy.flr',
+                          animation: _animation,
                         ),
                       ),
                       backgroundColor: Colors.white,
                     ),
                   ),
                   SizedBox(height: customHeight),
-                  isLoginForm == true ? _formCard() : welcomeBox(),
+                  _isAuthForm == true ? _formCard() : welcomeBox(),
                   Visibility(
                     visible: _showGoogleSignIn,
                     child: GoogleSignInButton(
-                      onPressed: () => userAuth.signInWithGoogle(context),
+                      onPressed: () => _userAuth.signInWithGoogle(context),
                       darkMode: true,
                     ),
                   ),
@@ -108,6 +111,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Widget _formCard() {
     String message;
+    String forgotMessage = '';
     return WillPopScope(
       child: GFCard(
         color: Colors.blueGrey,
@@ -117,7 +121,7 @@ class _WelcomePageState extends State<WelcomePage> {
             MyTextField('Email', (value) => email = value.trim()),
             MyTextField(
               'Password',
-              (value) => password = value.trim(),
+                  (value) => password = value.trim(),
               isPassword: true,
             ),
             Padding(
@@ -125,18 +129,28 @@ class _WelcomePageState extends State<WelcomePage> {
               child: Visibility(
                 visible: !_isSignUp,
                 child: FlatButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    if (email.isEmpty)
+                      FlushbarHelper.createError(
+                          message: 'Please enter an email')
+                        ..show(context);
+                    else {
+                      forgotMessage = await _userAuth.resetPassword(email);
+                      FlushbarHelper.createSuccess(message: forgotMessage)
+                        ..show(context);
+                    }
+                  },
                   color: Colors.blue[200],
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                        fontSize: 26,
+                        fontSize: ScreenUtil().setSp(60),
                         color: Colors.white,
                         fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
         buttonBar: GFButtonBar(
@@ -169,26 +183,30 @@ class _WelcomePageState extends State<WelcomePage> {
                             message: 'Please enter you '
                                 'email and password')
                           ..show(context);
+                        _changeAnimation(false);
                       } else {
                         if (btnState == ButtonState.Idle && mounted)
                           startLoading();
                         if (_isSignUp)
-                          message = await userAuth.createAccountWithEmail(
+                          message = await _userAuth.createAccountWithEmail(
                               email, password, context);
                         else
-                          message = await userAuth.signInWithEmail(
+                          message = await _userAuth.signInWithEmail(
                               email, password, context);
                         stopLoading();
-                        if (message == 'successful sign in' ||
-                            message == 'successfully signed up')
+                        if (message == 'successfully signed in' ||
+                            message == 'successfully signed up') {
+                          _changeAnimation(true);
                           FlushbarHelper.createSuccess(message: message)
                             ..show(context);
-                        else
+                        } else {
                           FlushbarHelper.createError(message: message)
                             ..show(context);
+                          _changeAnimation(false);
+                        }
                       }
                     },
-                    child: Text('Done'),
+                    child: Text('Done', style: TextStyle(fontSize: 24)),
                     width: 130,
                     height: 60,
                   ),
@@ -206,10 +224,11 @@ class _WelcomePageState extends State<WelcomePage> {
   // a method to go back to welcome box on back button press
   backToWelcomeBox() {
     setState(() {
-      isLoginForm = false;
+      _isAuthForm = false;
       _showGoogleSignIn = true;
       _isSignUp = false;
       customHeight = 36;
+      _animation = 'idle';
     });
   }
 
@@ -219,13 +238,16 @@ class _WelcomePageState extends State<WelcomePage> {
       onTap: () {
         setState(() {
           smallerHeight();
-          isLoginForm = true;
+          _isAuthForm = true;
           _showGoogleSignIn = false;
         });
       },
       child: Container(
-        width: ScreenUtil.screenWidth,
-        padding: EdgeInsets.all(10),
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
+        padding: EdgeInsets.all(6),
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -243,12 +265,15 @@ class _WelcomePageState extends State<WelcomePage> {
   // register button
   Widget _registerButton() {
     return SizedBox(
-      width: ScreenUtil.screenWidth,
-      height: 140.h,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      height: 62,
       child: GFButton(
         onPressed: () {
           setState(() {
-            isLoginForm = true;
+            _isAuthForm = true;
             _isSignUp = true;
             _showGoogleSignIn = false;
             smallerHeight();
@@ -265,5 +290,15 @@ class _WelcomePageState extends State<WelcomePage> {
         fullWidthButton: true,
       ),
     );
+  }
+
+  void _changeAnimation(bool isHappy) {
+    if (isHappy)
+      setState(() => _animation = 'success');
+    else
+      setState(() => _animation = 'fail');
+    Timer(Duration(seconds: 4), () {
+      setState(() => _animation = 'idle');
+    });
   }
 }

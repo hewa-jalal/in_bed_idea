@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:flare_flutter/flare_controller.dart';
+import 'package:flare_flutter/flare_controls.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/components/brightness_slider.dart';
+import 'package:inbedidea/main.dart';
 import 'package:inbedidea/pages/music_page.dart';
 import 'package:inbedidea/pages/notes_page.dart';
-import 'package:inbedidea/models/user_model.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
 import 'package:inbedidea/services/user_auth.dart';
 import 'package:provider/provider.dart';
@@ -27,19 +28,23 @@ class _FirstPageState extends State<FirstPage> {
   final _auth = FirebaseAuth.instance;
   Color _torchColor = Colors.white;
   bool _isFlashOn = false;
-  double _brightness = 1.0;
-
-  getBrightness() async {
-    double brightness = await Screen.brightness;
-    setState(() => _brightness = brightness);
-    print('brightness first screen => $_brightness');
-  }
+  UserAuth _userAuth;
+  String _animation = 'sleeping';
+  final FlareControls _flareControls = FlareControls();
+  FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     Screen.keepOn(true);
-    getBrightness();
+    _userAuth = getIt<UserAuth>();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,7 +94,7 @@ class _FirstPageState extends State<FirstPage> {
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-              userAuth.signOut();
+              _userAuth.signOut();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => WelcomePage()));
             },
@@ -104,17 +109,21 @@ class _FirstPageState extends State<FirstPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: TextField(
+                  onTap: () => setState(() => _animation = 'wake_up'),
+                  focusNode: _focusNode,
                   decoration: InputDecoration.collapsed(
                     hintText: 'Write down your great idea...',
                   ),
                   onChanged: (value) => noteText = value.trim(),
+                  onSubmitted: (_) => setState(() => _animation = 'sleeping'),
                 ),
               ),
             ),
             Expanded(
               flex: 3,
               child: FlareActor(
-                'assets/teddyyyy.flr',
+                'assets/teddy.flr',
+                animation: _animation,
               ),
             ),
           ],

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,10 +36,6 @@ class UserAuth {
     print('user signed out');
   }
 
-  Future<void> getUser() async {
-    user = await _auth.currentUser();
-  }
-
   void googleSignInSilent(context) {
     _googleSignIn.signInSilently(suppressErrors: false).then(
       (account) {
@@ -55,13 +53,13 @@ class UserAuth {
   Future<String> createAccountWithEmail(
       String email, String password, BuildContext context) async {
     try {
-      final user = await _auth.createUserWithEmailAndPassword(
+      await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      if (user != null) {
-        Navigator.push(
+      Timer(Duration(seconds: 2), () {
+        Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => FirstPage()));
-        return 'successfully signed up';
-      }
+      });
+      return 'successfully signed up';
     } on PlatformException catch (e) {
       switch (e.code) {
         case 'ERROR_WEAK_PASSWORD':
@@ -78,9 +76,11 @@ class UserAuth {
       String email, String password, BuildContext context) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => FirstPage()));
-      return 'successful sign in';
+      Timer(Duration(seconds: 2), () {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => FirstPage()));
+      });
+      return 'successfully signed in';
     } on PlatformException catch (e) {
       switch (e.code) {
         case 'ERROR_INVALID_EMAIL':
@@ -101,6 +101,19 @@ class UserAuth {
     else
       await _auth.signOut();
   }
-}
 
-final UserAuth userAuth = UserAuth();
+  // ignore: missing_return
+  Future<String> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return 'sent an email to $email';
+    } on PlatformException catch (e) {
+      switch (e.code) {
+        case 'ERROR_INVALID_EMAIL':
+          return 'Please enter a correct email';
+        case 'ERROR_USER_NOT_FOUND':
+          return 'No user found with email $email';
+      }
+    }
+  }
+}

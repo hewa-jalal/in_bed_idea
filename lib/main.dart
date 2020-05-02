@@ -1,16 +1,18 @@
-
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:inbedidea/models/user_model.dart';
+import 'package:get_it/get_it.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
+import 'package:inbedidea/services/user_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 import 'pages/first_page.dart';
 
+GetIt getIt = GetIt.instance;
+
 void main() {
   runApp(MyApp());
+  getIt.registerSingleton<UserAuth>(UserAuth());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,9 +20,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<UserModel>(
-          create: (_) => UserModel(),
-        ),
         StreamProvider<FirebaseUser>.value(
             value: FirebaseAuth.instance.onAuthStateChanged),
       ],

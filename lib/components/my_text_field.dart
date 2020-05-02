@@ -62,7 +62,7 @@ class _MyTextFieldState extends State<MyTextField> {
                   borderSide: BorderSide(color: Colors.blue, width: 5.0),
                 ),
                 filled: true),
-          )
+          ),
         ],
       ),
     );
