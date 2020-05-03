@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class NoteWidget extends StatelessWidget {
   final String noteText;
   final String userId;
@@ -20,7 +19,7 @@ class NoteWidget extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
           ),
           children: <Widget>[
             Padding(
@@ -28,20 +27,27 @@ class NoteWidget extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   Text(
-                    noteText,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                    '$noteText \n',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   ),
-                  Text(
-                    userId,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-                  ),
-                  Text(
-                    userName ?? 'null',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-                  ),
-                  Text(
-                    date ?? 'null',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                  Align(
+                    alignment: Alignment.center,
+                    child: FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: RichText(
+                        text: TextSpan(children: <TextSpan>[
+                          TextSpan(
+                              text: 'Idea was captured at: ',
+                              style: TextStyle(fontSize: 22)),
+                          TextSpan(text: '\n'),
+                          TextSpan(
+                            text: '  $date',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 22),
+                          )
+                        ]),
+                      ),
+                    ),
                   )
                 ],
               ),

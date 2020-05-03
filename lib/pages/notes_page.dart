@@ -16,44 +16,47 @@ class NotesPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.blueGrey[800],
-        body: StreamBuilder<QuerySnapshot>(
-          stream: _firestore
-              .collection('notes')
-              .where('userId', isEqualTo: userId)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData)
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            else if (snapshot.data.documents.isEmpty) {
-              return Center(
-                child: FittedBox(
-                  child: Text(
-                    'you don\'t have any notes',
-                    style: TextStyle(fontSize: 26),
+        body: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: _firestore
+                .collection('notes')
+                .where('userId', isEqualTo: userId)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData)
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              else if (snapshot.data.documents.isEmpty) {
+                return Center(
+                  child: FittedBox(
+                    child: Text(
+                      'you don\'t have any notes',
+                      style: TextStyle(fontSize: 26),
+                    ),
                   ),
-                ),
+                );
+              }
+              final List<DocumentSnapshot> notes = snapshot.data.documents;
+              List<NoteWidget> notesWidgets = [];
+              for (var note in notes) {
+                final noteText = note.data['text'];
+                final noteId = note.data['userId'];
+                final noteUserName = note.data['userName'];
+                final date = DateFormat.yMd('en_US')
+                    .add_jm()
+                    .format(note.data['date'].toDate());
+                final noteWidget =
+                    NoteWidget(noteText, noteId, noteUserName, date);
+                notesWidgets.add(noteWidget);
+              }
+              return ListView.builder(
+                itemBuilder: (context, index) => notesWidgets[index],
+                itemCount: notesWidgets.length,
               );
-            }
-            final List<DocumentSnapshot> notes = snapshot.data.documents;
-            List<NoteWidget> notesWidgets = [];
-            for (var note in notes) {
-              final noteText = note.data['text'];
-              final noteId = note.data['userId'];
-              final noteUserName = note.data['userName'];
-              final date = DateFormat.yMd('en_US')
-                  .add_jm()
-                  .format(note.data['date'].toDate());
-              final noteWidget =
-                  NoteWidget(noteText, noteId, noteUserName, date);
-              notesWidgets.add(noteWidget);
-            }
-            return ListView.builder(
-              itemBuilder: (context, index) => notesWidgets[index],
-              itemCount: notesWidgets.length,
-            );
-          },
+            },
+          ),
         ),
       ),
     );

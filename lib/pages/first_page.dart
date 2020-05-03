@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flare_flutter/flare_controls.dart';
 import 'package:flushbar/flushbar_helper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/components/brightness_slider.dart';
@@ -32,6 +34,7 @@ class _FirstPageState extends State<FirstPage> {
   String _animation = 'sleeping';
   final FlareControls _flareControls = FlareControls();
   FocusNode _focusNode;
+  String _appId = 'ca-app-pub-2856464717670030~1594650793';
 
   @override
   void initState() {
@@ -39,13 +42,26 @@ class _FirstPageState extends State<FirstPage> {
     Screen.keepOn(true);
     _userAuth = getIt<UserAuth>();
     _focusNode = FocusNode();
+    FirebaseAdMob.instance.initialize(appId: _appId);
+    myBanner
+      ..load()
+      ..show(horizontalCenterOffset: -70);
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
+    myBanner.dispose();
     super.dispose();
   }
+
+  BannerAd myBanner = BannerAd(
+    adUnitId: 'ca-app-pub-2856464717670030/9835623969',
+    size: AdSize.banner,
+    listener: (MobileAdEvent event) {
+      print("BannerAd event is $event");
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +125,7 @@ class _FirstPageState extends State<FirstPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: TextField(
+                  maxLines: null,
                   onTap: () => setState(() => _animation = 'wake_up'),
                   focusNode: _focusNode,
                   decoration: InputDecoration.collapsed(
