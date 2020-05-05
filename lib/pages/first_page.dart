@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/components/brightness_slider.dart';
+import 'package:inbedidea/components/teddy_animations.dart';
 import 'package:inbedidea/main.dart';
 import 'package:inbedidea/pages/ads.dart';
 import 'package:inbedidea/pages/music_page.dart';
@@ -29,27 +30,27 @@ class _FirstPageState extends State<FirstPage> {
   Color _torchColor = Colors.white;
   bool _isFlashOn = false;
   UserAuth _userAuth;
-  String _animation = 'sleeping';
-  FocusNode _focusNode;
   FirebaseUser authUser;
+  TeddyAnimations teddyAnimations;
+  bool _firstPageLoad = true;
 
   @override
   void initState() {
     super.initState();
     Screen.keepOn(true);
     _userAuth = getIt<UserAuth>();
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     authUser = Provider.of<FirebaseUser>(context);
+    teddyAnimations = Provider.of<TeddyAnimations>(context);
+
+    if (_firstPageLoad) {
+      teddyAnimations.changeAnimation(TeddyStatus.sleeping);
+      _firstPageLoad = false;
+    }
+
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
@@ -99,6 +100,7 @@ class _FirstPageState extends State<FirstPage> {
             ),
             onPressed: () {
               _userAuth.signOut();
+              teddyAnimations.changeAnimation(TeddyStatus.idle);
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => WelcomePage()));
             },
@@ -114,26 +116,31 @@ class _FirstPageState extends State<FirstPage> {
                 padding: const EdgeInsets.only(left: 6),
                 child: TextField(
                   maxLines: null,
-                  onTap: () => setState(() => _animation = 'wake_up'),
-                  focusNode: _focusNode,
+                  onTap: () =>
+                      teddyAnimations.changeAnimation(TeddyStatus.wakeUp),
                   textInputAction: TextInputAction.done,
                   decoration: InputDecoration.collapsed(
                     hintText: 'Write down your great idea...',
                   ),
                   onChanged: (value) => noteText = value.trim(),
-                  onSubmitted: (_) {
-                    setState(() => _animation = 'sleeping');
-                    saveToFirestore();
-                  },
+                  onSubmitted: (_) => saveToFirestore(),
                 ),
               ),
             ),
-            Expanded(
-              flex: 3,
-              child: FlareActor(
-                'assets/teddy.flr',
-                animation: _animation,
-              ),
+            Consumer<TeddyAnimations>(
+              builder:
+                  (BuildContext context, TeddyAnimations value, Widget child) {
+                return Expanded(
+                  flex: 3,
+                  child: Hero(
+                    tag: 'teddyHero',
+                    child: FlareActor(
+                      'assets/teddy.flr',
+                      animation: value.animation,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -146,6 +153,7 @@ class _FirstPageState extends State<FirstPage> {
       FlushbarHelper.createError(message: 'Please enter an idea')
         ..show(context);
     else {
+      teddyAnimations.changeAnimation(TeddyStatus.sleeping);
       _firestore.collection('notes').add({
         'text': noteText,
         'userId': authUser.uid,
@@ -154,14 +162,5 @@ class _FirstPageState extends State<FirstPage> {
       });
       FlushbarHelper.createSuccess(message: 'Idea saved')..show(context);
     }
-  }
-
-  void signOut() {
-    setState(() {
-      _googleAuth.signOut();
-      _auth.signOut();
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => WelcomePage()));
-    });
   }
 }

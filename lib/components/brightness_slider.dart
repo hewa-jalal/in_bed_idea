@@ -19,7 +19,6 @@ class _BrightnessSliderState extends State<BrightnessSlider> {
   getBrightness() async {
     double brightness = await Screen.brightness;
     setState(() => _brightness = brightness);
-    Screen.setBrightness(0.2);
     print('brightness first screen => $_brightness');
   }
 

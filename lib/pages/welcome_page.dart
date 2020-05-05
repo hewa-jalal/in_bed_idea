@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flushbar/flushbar_helper.dart';
@@ -35,19 +33,18 @@ class _WelcomePageState extends State<WelcomePage> {
 //    _userAuth.googleSignInSilent(context);
   }
 
-  String _animation = 'idle';
   bool _isAuthForm = false;
   bool _showGoogleSignIn = true;
   bool _isSignUp = false;
   String email = '';
   String password = '';
   double customHeight = 36;
+  TeddyAnimations _teddyAnimations;
 
   void smallerHeight() => customHeight = 10;
 
   @override
   Widget build(BuildContext context) {
-    String teddyAnimation = Provider.of<TeddyAnimations>(context).animation;
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -65,31 +62,38 @@ class _WelcomePageState extends State<WelcomePage> {
                 vertical: 80,
                 horizontal: 30,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: CircleAvatar(
-                      child: ClipOval(
-                        child: FlareActor(
-                          'assets/teddy.flr',
-                          animation: _animation,
+              child: Consumer<TeddyAnimations>(
+                builder: (BuildContext context, TeddyAnimations value,
+                    Widget child) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Hero(
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: CircleAvatar(
+                            child: ClipOval(
+                              child: FlareActor(
+                                'assets/teddy.flr',
+                                animation: value.animation,
+                              ),
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                        ), tag: 'teddyHero',
+                      ),
+                      SizedBox(height: customHeight),
+                      _isAuthForm == true ? _formCard() : welcomeBox(),
+                      Visibility(
+                        visible: _showGoogleSignIn,
+                        child: GoogleSignInButton(
+                          onPressed: () => _userAuth.signInWithGoogle(context),
+                          darkMode: true,
                         ),
                       ),
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: customHeight),
-                  _isAuthForm == true ? _formCard() : welcomeBox(),
-                  Visibility(
-                    visible: _showGoogleSignIn,
-                    child: GoogleSignInButton(
-                      onPressed: () => _userAuth.signInWithGoogle(context),
-                      darkMode: true,
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -110,6 +114,7 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _formCard() {
+    _teddyAnimations = Provider.of<TeddyAnimations>(context, listen: false);
     String message;
     String forgotMessage = '';
     return WillPopScope(
@@ -122,7 +127,7 @@ class _WelcomePageState extends State<WelcomePage> {
               MyTextField('Email', (value) => email = value.trim()),
               MyTextField(
                 'Password',
-                    (value) => password = value.trim(),
+                (value) => password = value.trim(),
                 isPassword: true,
               ),
               Padding(
@@ -188,7 +193,8 @@ class _WelcomePageState extends State<WelcomePage> {
                               message: 'Please enter your '
                                   'email and password')
                             ..show(context);
-                          _changeAnimation(isHappy: false);
+                          _teddyAnimations.changeAnimation(TeddyStatus.fail,
+                              isBackToIdle: true);
                         } else {
                           if (btnState == ButtonState.Idle && mounted)
                             startLoading();
@@ -201,13 +207,15 @@ class _WelcomePageState extends State<WelcomePage> {
                           stopLoading();
                           if (message == 'successfully signed in' ||
                               message == 'successfully signed up') {
-                            _changeAnimation(isHappy: true);
                             FlushbarHelper.createSuccess(message: message)
                               ..show(context);
+                            _teddyAnimations
+                                .changeAnimation(TeddyStatus.success);
                           } else {
                             FlushbarHelper.createError(message: message)
                               ..show(context);
-                            _changeAnimation(isHappy: false);
+                            _teddyAnimations.changeAnimation(TeddyStatus
+                                .fail, isBackToIdle: true);
                           }
                         }
                       },
@@ -234,7 +242,6 @@ class _WelcomePageState extends State<WelcomePage> {
       _showGoogleSignIn = true;
       _isSignUp = false;
       customHeight = 36;
-      _animation = 'idle';
     });
   }
 
@@ -286,15 +293,5 @@ class _WelcomePageState extends State<WelcomePage> {
         fullWidthButton: true,
       ),
     );
-  }
-
-  void _changeAnimation({bool isHappy}) {
-    if (isHappy)
-      setState(() => _animation = 'success');
-    else
-      setState(() => _animation = 'fail');
-    Timer(Duration(seconds: 4), () {
-      setState(() => _animation = 'idle');
-    });
   }
 }
