@@ -1,18 +1,19 @@
-import 'package:device_preview/device_preview.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:inbedidea/components/teddy_animations.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
 import 'package:inbedidea/services/user_auth.dart';
 import 'package:provider/provider.dart';
 
-import 'pages/first_page.dart';
-
 GetIt getIt = GetIt.instance;
+final _appId = 'ca-app-pub-2856464717670030~1594650793';
 
 void main() {
-  runApp(MyApp());
   getIt.registerSingleton<UserAuth>(UserAuth());
+  Admob.initialize(_appId);
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,6 +23,9 @@ class MyApp extends StatelessWidget {
       providers: [
         StreamProvider<FirebaseUser>.value(
             value: FirebaseAuth.instance.onAuthStateChanged),
+        ChangeNotifierProvider<TeddyAnimations>(
+          create: (_) => TeddyAnimations(),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:inbedidea/components/audio_card_wiget.dart';
 import 'package:inbedidea/services/custom_controller.dart';
-import 'package:inbedidea/size_config.dart';
-import 'package:video_player/video_player.dart';
+
 
 //void myBackgroundTaskEntrypoint() {
 //  AudioServiceBackground.run(() => MyBackgroundTask());

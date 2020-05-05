@@ -37,8 +37,9 @@ class NoteWidget extends StatelessWidget {
                       child: RichText(
                         text: TextSpan(children: <TextSpan>[
                           TextSpan(
-                              text: 'Idea was captured at: ',
-                              style: TextStyle(fontSize: 22)),
+                            text: 'idea was captured at: ',
+                            style: TextStyle(fontSize: 22),
+                          ),
                           TextSpan(text: '\n'),
                           TextSpan(
                             text: '  $date',

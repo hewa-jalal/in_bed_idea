@@ -10,7 +10,6 @@ class BrightnessSlider extends StatefulWidget {
 class _BrightnessSliderState extends State<BrightnessSlider> {
   double _brightness = 1.0;
 
-
   @override
   void initState() {
     super.initState();
@@ -24,7 +23,6 @@ class _BrightnessSliderState extends State<BrightnessSlider> {
     print('brightness first screen => $_brightness');
   }
 
-
   @override
   Widget build(BuildContext context) {
     return FlutterSlider(
@@ -34,7 +32,7 @@ class _BrightnessSliderState extends State<BrightnessSlider> {
       ),
       max: 1.0,
       min: 0.0,
-      step: 0.1,
+      step: _brightness,
       onDragging: (handlerIndex, lowerValue, upperValue) {
         setState(() {
           Screen.setBrightness(lowerValue);

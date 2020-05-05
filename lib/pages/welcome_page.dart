@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flare_flutter/flare_actor.dart';
-import 'package:flare_flutter/flare_controller.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:getflutter/components/button/gf_button.dart';
 import 'package:getflutter/components/button/gf_button_bar.dart';
@@ -16,8 +14,11 @@ import 'package:getflutter/getflutter.dart';
 import 'package:getflutter/shape/gf_button_shape.dart';
 import 'package:getflutter/types/gf_button_type.dart';
 import 'package:inbedidea/components/my_text_field.dart';
+import 'package:inbedidea/components/teddy_animations.dart';
 import 'package:inbedidea/main.dart';
 import 'package:inbedidea/services/user_auth.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
+import 'package:provider/provider.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -46,8 +47,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    FlareController controller;
-    ScreenUtil.init(context);
+    String teddyAnimation = Provider.of<TeddyAnimations>(context).animation;
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -113,108 +113,114 @@ class _WelcomePageState extends State<WelcomePage> {
     String message;
     String forgotMessage = '';
     return WillPopScope(
-      child: GFCard(
-        color: Colors.blueGrey,
-        boxFit: BoxFit.cover,
-        content: Column(
-          children: <Widget>[
-            MyTextField('Email', (value) => email = value.trim()),
-            MyTextField(
-              'Password',
-                  (value) => password = value.trim(),
-              isPassword: true,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Visibility(
-                visible: !_isSignUp,
-                child: FlatButton(
-                  onPressed: () async {
-                    if (email.isEmpty)
-                      FlushbarHelper.createError(
-                          message: 'Please enter an email')
-                        ..show(context);
-                    else {
-                      forgotMessage = await _userAuth.resetPassword(email);
-                      FlushbarHelper.createSuccess(message: forgotMessage)
-                        ..show(context);
-                    }
-                  },
-                  color: Colors.blue[200],
-                  child: Text(
-                    'Forgot password?',
-                    style: TextStyle(
-                        fontSize: ScreenUtil().setSp(60),
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+      child: KeyboardAvoider(
+        child: GFCard(
+          color: Colors.blueGrey,
+          boxFit: BoxFit.cover,
+          content: Column(
+            children: <Widget>[
+              MyTextField('Email', (value) => email = value.trim()),
+              MyTextField(
+                'Password',
+                    (value) => password = value.trim(),
+                isPassword: true,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Visibility(
+                  visible: !_isSignUp,
+                  child: FlatButton(
+                    onPressed: () async {
+                      if (email.isEmpty)
+                        FlushbarHelper.createError(
+                            message: 'Please enter an email')
+                          ..show(context);
+                      else {
+                        forgotMessage = await _userAuth.resetPassword(email);
+                        if (forgotMessage == 'sent an email to $email')
+                          FlushbarHelper.createSuccess(message: forgotMessage)
+                            ..show(context);
+                        else
+                          FlushbarHelper.createError(message: forgotMessage)
+                            ..show(context);
+                      }
+                    },
+                    color: Colors.blue[200],
+                    child: Text(
+                      'Forgot password?',
+                      style: TextStyle(
+                          fontSize: 26,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        buttonBar: GFButtonBar(
-          alignment: WrapAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20, right: 16),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      size: 46,
-                      color: Colors.blue,
+            ],
+          ),
+          buttonBar: GFButtonBar(
+            alignment: WrapAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20, right: 16),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back,
+                        size: 46,
+                        color: Colors.blue,
+                      ),
+                      onPressed: backToWelcomeBox,
                     ),
-                    onPressed: backToWelcomeBox,
                   ),
-                ),
-                Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: ArgonButton(
-                    loader: SpinKitFadingCircle(
-                      color: Colors.white,
-                    ),
-                    onTap: (startLoading, stopLoading, btnState) async {
-                      if (email.isEmpty || password.isEmpty) {
-                        FlushbarHelper.createError(
-                            message: 'Please enter you '
-                                'email and password')
-                          ..show(context);
-                        _changeAnimation(false);
-                      } else {
-                        if (btnState == ButtonState.Idle && mounted)
-                          startLoading();
-                        if (_isSignUp)
-                          message = await _userAuth.createAccountWithEmail(
-                              email, password, context);
-                        else
-                          message = await _userAuth.signInWithEmail(
-                              email, password, context);
-                        stopLoading();
-                        if (message == 'successfully signed in' ||
-                            message == 'successfully signed up') {
-                          _changeAnimation(true);
-                          FlushbarHelper.createSuccess(message: message)
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: ArgonButton(
+                      loader: SpinKitFadingCircle(
+                        color: Colors.white,
+                      ),
+                      onTap: (startLoading, stopLoading, btnState) async {
+                        if (email.isEmpty || password.isEmpty) {
+                          FlushbarHelper.createError(
+                              message: 'Please enter your '
+                                  'email and password')
                             ..show(context);
+                          _changeAnimation(isHappy: false);
                         } else {
-                          FlushbarHelper.createError(message: message)
-                            ..show(context);
-                          _changeAnimation(false);
+                          if (btnState == ButtonState.Idle && mounted)
+                            startLoading();
+                          if (_isSignUp)
+                            message = await _userAuth.createAccountWithEmail(
+                                email, password, context);
+                          else
+                            message = await _userAuth.signInWithEmail(
+                                email, password, context);
+                          stopLoading();
+                          if (message == 'successfully signed in' ||
+                              message == 'successfully signed up') {
+                            _changeAnimation(isHappy: true);
+                            FlushbarHelper.createSuccess(message: message)
+                              ..show(context);
+                          } else {
+                            FlushbarHelper.createError(message: message)
+                              ..show(context);
+                            _changeAnimation(isHappy: false);
+                          }
                         }
-                      }
-                    },
-                    child: Text('Done', style: TextStyle(fontSize: 24)),
-                    width: 130,
-                    height: 60,
+                      },
+                      child: Text('Done', style: TextStyle(fontSize: 24)),
+                      width: 130,
+                      height: 60,
+                    ),
                   ),
-                ),
-                Spacer(flex: 2)
-              ],
-            ),
-          ],
+                  Spacer(flex: 2)
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       onWillPop: () => backToWelcomeBox(),
@@ -243,10 +249,7 @@ class _WelcomePageState extends State<WelcomePage> {
         });
       },
       child: Container(
-        width: MediaQuery
-            .of(context)
-            .size
-            .width,
+        width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.all(6),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -254,9 +257,7 @@ class _WelcomePageState extends State<WelcomePage> {
             color: Colors.white),
         child: Text(
           'Login',
-          style: TextStyle(
-              fontSize: ScreenUtil().setSp(100, allowFontScalingSelf: true),
-              color: Colors.blue),
+          style: TextStyle(fontSize: 40, color: Colors.blue),
         ),
       ),
     );
@@ -265,10 +266,7 @@ class _WelcomePageState extends State<WelcomePage> {
   // register button
   Widget _registerButton() {
     return SizedBox(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       height: 62,
       child: GFButton(
         onPressed: () {
@@ -280,9 +278,7 @@ class _WelcomePageState extends State<WelcomePage> {
           });
         },
         text: 'Register now',
-        textStyle: TextStyle(
-            fontSize: ScreenUtil().setSp(100, allowFontScalingSelf: true),
-            color: Colors.white),
+        textStyle: TextStyle(fontSize: 40, color: Colors.white),
         textColor: Colors.black,
         shape: GFButtonShape.square,
         type: GFButtonType.outline2x,
@@ -292,7 +288,7 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  void _changeAnimation(bool isHappy) {
+  void _changeAnimation({bool isHappy}) {
     if (isHappy)
       setState(() => _animation = 'success');
     else

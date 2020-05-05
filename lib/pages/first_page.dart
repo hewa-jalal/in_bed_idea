@@ -1,15 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
-import 'package:flare_flutter/flare_controller.dart';
-import 'package:flare_flutter/flare_controls.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbedidea/components/brightness_slider.dart';
 import 'package:inbedidea/main.dart';
+import 'package:inbedidea/pages/ads.dart';
 import 'package:inbedidea/pages/music_page.dart';
 import 'package:inbedidea/pages/notes_page.dart';
 import 'package:inbedidea/pages/welcome_page.dart';
@@ -32,9 +30,8 @@ class _FirstPageState extends State<FirstPage> {
   bool _isFlashOn = false;
   UserAuth _userAuth;
   String _animation = 'sleeping';
-  final FlareControls _flareControls = FlareControls();
   FocusNode _focusNode;
-  String _appId = 'ca-app-pub-2856464717670030~1594650793';
+  FirebaseUser authUser;
 
   @override
   void initState() {
@@ -42,39 +39,30 @@ class _FirstPageState extends State<FirstPage> {
     Screen.keepOn(true);
     _userAuth = getIt<UserAuth>();
     _focusNode = FocusNode();
-    FirebaseAdMob.instance.initialize(appId: _appId);
-    myBanner
-      ..load()
-      ..show(horizontalCenterOffset: -70);
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
-    myBanner.dispose();
     super.dispose();
   }
 
-  BannerAd myBanner = BannerAd(
-    adUnitId: 'ca-app-pub-2856464717670030/9835623969',
-    size: AdSize.banner,
-    listener: (MobileAdEvent event) {
-      print("BannerAd event is $event");
-    },
-  );
-
   @override
   Widget build(BuildContext context) {
-    final authUser = Provider.of<FirebaseUser>(context);
+    authUser = Provider.of<FirebaseUser>(context);
     return Scaffold(
       resizeToAvoidBottomPadding: false,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.check),
+        onPressed: () => saveToFirestore(),
+        backgroundColor: Colors.blueGrey[900],
+      ),
+      bottomNavigationBar: Ads(),
       appBar: AppBar(
         backgroundColor: Colors.blueGrey[900],
         automaticallyImplyLeading: false,
         actions: <Widget>[
-          Expanded(
-            child: BrightnessSlider(),
-          ),
+          Expanded(child: BrightnessSlider()),
           IconButton(
             icon: Icon(Icons.music_note),
             onPressed: () {
@@ -128,11 +116,15 @@ class _FirstPageState extends State<FirstPage> {
                   maxLines: null,
                   onTap: () => setState(() => _animation = 'wake_up'),
                   focusNode: _focusNode,
+                  textInputAction: TextInputAction.done,
                   decoration: InputDecoration.collapsed(
                     hintText: 'Write down your great idea...',
                   ),
                   onChanged: (value) => noteText = value.trim(),
-                  onSubmitted: (_) => setState(() => _animation = 'sleeping'),
+                  onSubmitted: (_) {
+                    setState(() => _animation = 'sleeping');
+                    saveToFirestore();
+                  },
                 ),
               ),
             ),
@@ -146,28 +138,22 @@ class _FirstPageState extends State<FirstPage> {
           ],
         ),
       ),
-      floatingActionButton: Builder(
-        builder: (context) => FloatingActionButton(
-          backgroundColor: Colors.blueGrey[900],
-          child: Icon(Icons.check),
-          onPressed: () {
-            if (noteText.isEmpty) {
-              FlushbarHelper.createError(message: 'Please enter an idea')
-                ..show(context);
-            } else {
-              _firestore.collection('notes').add({
-                'text': noteText,
-                'userId': authUser.uid,
-                'userName': authUser.email,
-                'date': DateTime.now()
-              });
-              FlushbarHelper.createSuccess(message: 'Idea saved')
-                ..show(context);
-            }
-          },
-        ),
-      ),
     );
+  }
+
+  saveToFirestore() {
+    if (noteText.isEmpty)
+      FlushbarHelper.createError(message: 'Please enter an idea')
+        ..show(context);
+    else {
+      _firestore.collection('notes').add({
+        'text': noteText,
+        'userId': authUser.uid,
+        'userName': authUser.email,
+        'date': DateTime.now()
+      });
+      FlushbarHelper.createSuccess(message: 'Idea saved')..show(context);
+    }
   }
 
   void signOut() {
