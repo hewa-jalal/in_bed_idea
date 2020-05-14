@@ -31,7 +31,7 @@ class _BrightnessSliderState extends State<BrightnessSlider> {
       ),
       max: 1.0,
       min: 0.0,
-      step: _brightness,
+      step: FlutterSliderStep(step: _brightness),
       onDragging: (handlerIndex, lowerValue, upperValue) {
         setState(() {
           Screen.setBrightness(lowerValue);

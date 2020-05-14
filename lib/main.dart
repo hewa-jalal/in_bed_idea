@@ -11,6 +11,7 @@ GetIt getIt = GetIt.instance;
 final _appId = 'ca-app-pub-2856464717670030~1594650793';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   getIt.registerSingleton<UserAuth>(UserAuth());
   Admob.initialize(_appId);
   runApp(MyApp());

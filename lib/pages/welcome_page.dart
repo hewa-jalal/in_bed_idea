@@ -15,8 +15,9 @@ import 'package:inbedidea/components/my_text_field.dart';
 import 'package:inbedidea/components/teddy_animations.dart';
 import 'package:inbedidea/main.dart';
 import 'package:inbedidea/services/user_auth.dart';
-import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:provider/provider.dart';
+
+import 'first_page.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -25,14 +26,7 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage> {
   UserAuth _userAuth;
-
-  @override
-  void initState() {
-    super.initState();
-    _userAuth = getIt<UserAuth>();
-//    _userAuth.googleSignInSilent(context);
-  }
-
+  bool _userExists;
   bool _isAuthForm = false;
   bool _showGoogleSignIn = true;
   bool _isSignUp = false;
@@ -40,72 +34,91 @@ class _WelcomePageState extends State<WelcomePage> {
   String password = '';
   double customHeight = 36;
   TeddyAnimations _teddyAnimations;
+  double _columnTopPadding = 80;
 
   void smallerHeight() => customHeight = 10;
 
   @override
+  void initState() {
+    super.initState();
+    _userAuth = getIt<UserAuth>();
+    _userAuth.checkUser().then((value) => setState(() => _userExists = value));
+    _userAuth.googleSignInSilent(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          height: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.grey, Colors.blue[200]]),
-          ),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: 80,
-                horizontal: 30,
-              ),
-              child: Consumer<TeddyAnimations>(
-                builder: (BuildContext context, TeddyAnimations value,
-                    Widget child) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Hero(
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: CircleAvatar(
-                            child: ClipOval(
-                              child: FlareActor(
-                                'assets/teddy.flr',
-                                animation: value.animation,
+    if (_userExists == null)
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    if (_userExists)
+      return FirstPage();
+    else
+      return SafeArea(
+        child: Scaffold(
+          body: Container(
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey, Colors.blue[200]]),
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: _columnTopPadding,
+                  horizontal: 30,
+                ),
+                child: Consumer<TeddyAnimations>(
+                  builder: (BuildContext context, TeddyAnimations value,
+                      Widget child) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Hero(
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: CircleAvatar(
+                              child: ClipOval(
+                                child: FlareActor(
+                                  'assets/teddy.flr',
+                                  animation: value.animation,
+                                ),
                               ),
+                              backgroundColor: Colors.white,
                             ),
-                            backgroundColor: Colors.white,
                           ),
-                        ), tag: 'teddyHero',
-                      ),
-                      SizedBox(height: customHeight),
-                      _isAuthForm == true ? _formCard() : welcomeBox(),
-                      Visibility(
-                        visible: _showGoogleSignIn,
-                        child: GoogleSignInButton(
-                          onPressed: () => _userAuth.signInWithGoogle(context),
-                          darkMode: true,
+                          tag: 'teddyHero',
                         ),
-                      ),
-                    ],
-                  );
-                },
+                        SizedBox(height: customHeight),
+                        _isAuthForm == true ? _formCard() : welcomeBox(),
+                        Visibility(
+                          visible: _showGoogleSignIn,
+                          child: GoogleSignInButton(
+                            onPressed: () =>
+                                _userAuth.signInWithGoogle(context),
+                            darkMode: true,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
+  // shows the login & register button
   Widget welcomeBox() {
     return Column(
       children: <Widget>[
-        _submitButton(),
+        _loginButton(),
         SizedBox(height: 20),
         _registerButton(),
         SizedBox(height: 20),
@@ -118,117 +131,114 @@ class _WelcomePageState extends State<WelcomePage> {
     String message;
     String forgotMessage = '';
     return WillPopScope(
-      child: KeyboardAvoider(
-        child: GFCard(
-          color: Colors.blueGrey,
-          boxFit: BoxFit.cover,
-          content: Column(
-            children: <Widget>[
-              MyTextField('Email', (value) => email = value.trim()),
-              MyTextField(
-                'Password',
-                (value) => password = value.trim(),
-                isPassword: true,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Visibility(
-                  visible: !_isSignUp,
-                  child: FlatButton(
-                    onPressed: () async {
-                      if (email.isEmpty)
-                        FlushbarHelper.createError(
-                            message: 'Please enter an email')
+      child: GFCard(
+        color: Colors.blueGrey,
+        boxFit: BoxFit.cover,
+        content: Column(
+          children: <Widget>[
+            MyTextField('Email', (value) => email = value.trim()),
+            MyTextField(
+              'Password',
+              (value) => password = value.trim(),
+              isPassword: true,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Visibility(
+                visible: !_isSignUp,
+                child: FlatButton(
+                  onPressed: () async {
+                    if (email.isEmpty)
+                      FlushbarHelper.createError(
+                          message: 'Please enter an email')
+                        ..show(context);
+                    else {
+                      forgotMessage = await _userAuth.resetPassword(email);
+                      if (forgotMessage == 'sent an email to $email')
+                        FlushbarHelper.createSuccess(message: forgotMessage)
                           ..show(context);
-                      else {
-                        forgotMessage = await _userAuth.resetPassword(email);
-                        if (forgotMessage == 'sent an email to $email')
-                          FlushbarHelper.createSuccess(message: forgotMessage)
-                            ..show(context);
-                        else
-                          FlushbarHelper.createError(message: forgotMessage)
-                            ..show(context);
-                      }
-                    },
-                    color: Colors.blue[200],
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                          fontSize: 26,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
-                    ),
+                      else
+                        FlushbarHelper.createError(message: forgotMessage)
+                          ..show(context);
+                    }
+                  },
+                  color: Colors.blue[200],
+                  child: Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                        fontSize: 26,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            ],
-          ),
-          buttonBar: GFButtonBar(
-            alignment: WrapAlignment.start,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20, right: 16),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.arrow_back,
-                        size: 46,
-                        color: Colors.blue,
-                      ),
-                      onPressed: backToWelcomeBox,
+            ),
+          ],
+        ),
+        buttonBar: GFButtonBar(
+          alignment: WrapAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20, right: 16),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 46,
+                      color: Colors.blue,
                     ),
+                    onPressed: backToWelcomeBox,
                   ),
-                  Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: ArgonButton(
-                      loader: SpinKitFadingCircle(
-                        color: Colors.white,
-                      ),
-                      onTap: (startLoading, stopLoading, btnState) async {
-                        if (email.isEmpty || password.isEmpty) {
-                          FlushbarHelper.createError(
-                              message: 'Please enter your '
-                                  'email and password')
+                ),
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: ArgonButton(
+                    loader: SpinKitFadingCircle(
+                      color: Colors.white,
+                    ),
+                    onTap: (startLoading, stopLoading, btnState) async {
+                      if (email.isEmpty || password.isEmpty) {
+                        FlushbarHelper.createError(
+                            message: 'Please enter your '
+                                'email and password')
+                          ..show(context);
+                        _teddyAnimations.changeAnimation(TeddyStatus.fail,
+                            isBackToIdle: true);
+                      } else {
+                        if (btnState == ButtonState.Idle && mounted)
+                          startLoading();
+                        if (_isSignUp)
+                          message = await _userAuth.createAccountWithEmail(
+                              email, password, context);
+                        else
+                          message = await _userAuth.signInWithEmail(
+                              email, password, context);
+                        stopLoading();
+                        if (message == 'successfully signed in' ||
+                            message == 'successfully signed up') {
+                          FlushbarHelper.createSuccess(message: message)
+                            ..show(context);
+                          _teddyAnimations.changeAnimation(TeddyStatus.success);
+                        } else {
+                          FlushbarHelper.createError(message: message)
                             ..show(context);
                           _teddyAnimations.changeAnimation(TeddyStatus.fail,
                               isBackToIdle: true);
-                        } else {
-                          if (btnState == ButtonState.Idle && mounted)
-                            startLoading();
-                          if (_isSignUp)
-                            message = await _userAuth.createAccountWithEmail(
-                                email, password, context);
-                          else
-                            message = await _userAuth.signInWithEmail(
-                                email, password, context);
-                          stopLoading();
-                          if (message == 'successfully signed in' ||
-                              message == 'successfully signed up') {
-                            FlushbarHelper.createSuccess(message: message)
-                              ..show(context);
-                            _teddyAnimations
-                                .changeAnimation(TeddyStatus.success);
-                          } else {
-                            FlushbarHelper.createError(message: message)
-                              ..show(context);
-                            _teddyAnimations.changeAnimation(TeddyStatus
-                                .fail, isBackToIdle: true);
-                          }
                         }
-                      },
-                      child: Text('Done', style: TextStyle(fontSize: 24)),
-                      width: 130,
-                      height: 60,
-                    ),
+                      }
+                    },
+                    child: Text('Done', style: TextStyle(fontSize: 24)),
+                    width: 130,
+                    height: 60,
                   ),
-                  Spacer(flex: 2)
-                ],
-              ),
-            ],
-          ),
+                ),
+                Spacer(flex: 2)
+              ],
+            ),
+          ],
         ),
       ),
       onWillPop: () => backToWelcomeBox(),
@@ -242,17 +252,19 @@ class _WelcomePageState extends State<WelcomePage> {
       _showGoogleSignIn = true;
       _isSignUp = false;
       customHeight = 36;
+      _columnTopPadding = 80;
     });
   }
 
-  // logInButton
-  Widget _submitButton() {
+  // loginButton
+  Widget _loginButton() {
     return InkWell(
       onTap: () {
         setState(() {
           smallerHeight();
           _isAuthForm = true;
           _showGoogleSignIn = false;
+          _columnTopPadding = 10;
         });
       },
       child: Container(
@@ -282,6 +294,7 @@ class _WelcomePageState extends State<WelcomePage> {
             _isSignUp = true;
             _showGoogleSignIn = false;
             smallerHeight();
+            _columnTopPadding = 10;
           });
         },
         text: 'Register now',

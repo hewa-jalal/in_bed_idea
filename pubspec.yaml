@@ -11,7 +11,7 @@ description: A new Flutter application.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -24,22 +24,25 @@ dependencies:
   screen: ^0.0.5
   torch_compat: ^1.0.2
   flutter_auth_buttons: ^0.8.0
-  google_sign_in: ^4.4.4
+  google_sign_in: ^4.4.6
   intl: ^0.16.1
   firebase_auth: ^0.16.0
   cloud_firestore: ^0.13.5
-  provider: ^4.0.5+1
-  flushbar: 1.9.1
+  provider: ^4.1.2
+  flushbar: ^1.10.2
   flare_flutter: ^2.0.3
-  video_player: ^0.10.9+1
+  video_player: ^0.10.10
   getflutter: ^1.0.11
   get_it: ^4.0.2
   argon_buttons_flutter: ^1.0.2
   flutter_spinkit: ^4.1.2+1
-  flutter_xlider: ^3.3.1
-  firebase_admob: ^0.9.3+2
+  flutter_xlider: ^3.4.0
   admob_flutter: ^0.3.4
-  keyboard_avoider: ^0.1.2
+  connectivity: ^0.4.8+6
+  flutter_keyboard_size: ^0.1.2+2
+
+
+
 
 
 

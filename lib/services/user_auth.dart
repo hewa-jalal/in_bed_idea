@@ -11,6 +11,17 @@ class UserAuth {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   FirebaseUser user;
 
+  Future<bool> checkUser() async {
+    user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      print('userrrr is not null');
+      return true;
+    } else {
+      print('userrrr is null');
+      return false;
+    }
+  }
+
   Future<void> signInWithGoogle(context) async {
     final GoogleSignInAccount googleSignInAccount =
         await _googleSignIn.signIn();
@@ -44,6 +55,8 @@ class UserAuth {
             context,
             MaterialPageRoute(builder: (context) => FirstPage()),
           );
+        } else {
+          print('no account to sign in silently');
         }
       },
     );
